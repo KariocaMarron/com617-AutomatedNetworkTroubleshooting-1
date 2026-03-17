@@ -39,5 +39,5 @@ Download cEOS from arista.com then run:
 Each router loads its startup config from configs/ which sets up:
 - Interface IPs
 - BGP peering between all 3 routers
-- SNMP traps sent to 172.20.20.100
-- Syslog sent to 172.20.20.100
+- SNMP traps sent to 172.20.21.5
+- Syslog sent to 172.20.21.5
