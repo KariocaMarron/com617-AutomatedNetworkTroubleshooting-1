@@ -1,0 +1,28 @@
+name: ant-lab
+
+topology:
+  nodes:
+
+    router1:
+      kind: ceos
+      image: ceos:latest
+      mgmt-ipv4: 172.20.20.11
+
+    router2:
+      kind: ceos
+      image: ceos:latest
+      mgmt-ipv4: 172.20.20.12
+
+    router3:
+      kind: ceos
+      image: ceos:latest
+      mgmt-ipv4: 172.20.20.13
+
+  links:
+    - endpoints: ["router1:eth1", "router2:eth1"]
+    - endpoints: ["router1:eth2", "router3:eth1"]
+    - endpoints: ["router2:eth2", "router3:eth2"]
+
+mgmt:
+  network: ant-mgmt
+  ipv4-subnet: 172.20.20.0/24
