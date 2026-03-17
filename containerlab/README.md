@@ -1,4 +1,4 @@
-# ContainerLab — ANT Lab
+# ContainerLab  ANT Lab
 
 Virtual network topology for the Automated Network Troubleshooting project.
 
