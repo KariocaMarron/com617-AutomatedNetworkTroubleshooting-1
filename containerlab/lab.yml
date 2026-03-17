@@ -7,6 +7,7 @@ topology:
       kind: ceos
       image: ceos:latest
       mgmt-ipv4: 172.20.20.11
+      startup-config: configs/router1.cfg
 
     router2:
       kind: ceos
