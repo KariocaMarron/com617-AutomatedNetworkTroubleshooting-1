@@ -6,9 +6,9 @@ Virtual network topology for the Automated Network Troubleshooting project.
 
 3 Arista cEOS routers connected in a triangle:
 
-- router1 (core) — 172.20.20.11
-- router2 (edge) — 172.20.20.12
-- router3 (edge) — 172.20.20.13
+- router1 (core) — 172.20.21.11
+- router2 (edge) — 172.20.21.12
+- router3 (edge) — 172.20.21.13
 
 ## Requirements
 
@@ -39,5 +39,5 @@ Download cEOS from arista.com then run:
 Each router loads its startup config from configs/ which sets up:
 - Interface IPs
 - BGP peering between all 3 routers
-- SNMP traps sent to 172.20.20.100
-- Syslog sent to 172.20.20.100
+- SNMP traps sent to 172.20.21.5
+- Syslog sent to 172.20.21.5
