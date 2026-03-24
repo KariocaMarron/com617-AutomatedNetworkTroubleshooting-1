@@ -1,0 +1,30 @@
+# Pyongyang Campus Simulated Devices - SNMP Enabled
+services:
+  py-router:
+    image: tandrup/snmpsim
+    container_name: pyu-py-router
+    hostname: pyu-py-router
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    restart: unless-stopped
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.2
+
+  py-switch:
+    image: tandrup/snmpsim
+    container_name: pyu-py-switch
+    hostname: pyu-py-switch
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    restart: unless-stopped
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.5
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# Static IPs configured for stability
+

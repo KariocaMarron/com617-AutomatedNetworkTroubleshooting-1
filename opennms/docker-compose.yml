@@ -1,0 +1,73 @@
+# VLE (Virtual Learning Environment) - Standalone Deployment
+# Connects to existing Pyongyang University infrastructure
+# Uses shared PostgreSQL database (pyu-postgres)
+
+services:
+  # Moodle VLE Server
+  vle:
+    image: bitnami/moodle:4.3
+    container_name: pyu-vle
+    hostname: pyu-vle
+    environment:
+      # Database configuration (connects to existing pyu-postgres)
+      MOODLE_DATABASE_TYPE: pgsql
+      MOODLE_DATABASE_HOST: pyu-postgres
+      MOODLE_DATABASE_PORT_NUMBER: 5432
+      MOODLE_DATABASE_NAME: moodle
+      MOODLE_DATABASE_USER: moodle
+      MOODLE_DATABASE_PASSWORD: moodle
+      
+      # Moodle admin credentials
+      MOODLE_USERNAME: admin
+      MOODLE_PASSWORD: Admin123!
+      MOODLE_EMAIL: admin@pyu.edu.kp
+      MOODLE_SITE_NAME: "Pyongyang University VLE"
+      
+      # Skip initial install wizard
+      MOODLE_SKIP_BOOTSTRAP: "no"
+      
+      # Performance settings (lightweight for lab)
+      PHP_MEMORY_LIMIT: 256M
+      PHP_MAX_EXECUTION_TIME: 300
+      PHP_POST_MAX_SIZE: 64M
+      PHP_UPLOAD_MAX_FILESIZE: 64M
+      
+      # Disable email (not needed for lab)
+      MOODLE_SKIP_MAIL_CONFIGURATION: "yes"
+    
+    volumes:
+      # Persistent data volumes
+      - vle-data:/bitnami/moodle
+      - vle-moodledata:/bitnami/moodledata
+    
+    ports:
+      # Expose on port 8081 (8080 is Moodle's internal port)
+      - "8081:8080/tcp"
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s  # Moodle takes time to initialize
+    
+    restart: unless-stopped
+    
+    networks:
+      - kafka_pyu-main
+
+volumes:
+  # VLE data volumes
+  vle-data:
+    driver: local
+  vle-moodledata:
+    driver: local
+
+networks:
+  # Connect to existing network
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Dec 2025
+# GitHub - KariocaMarron
+# acme5bataj10@outlook.com

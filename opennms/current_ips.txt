@@ -1,0 +1,15 @@
+/chongjin-minion - 172.18.0.14
+/hamhung-minion - 172.18.0.13
+/pyu-activemq - 172.18.0.9
+/pyu-dns-dhcp - 172.18.0.12
+/pyu-fog-db - 172.18.0.8
+/pyu-fog-server - 172.18.0.17
+/pyu-horizon - 172.18.0.11
+/pyu-ldap - 172.18.0.6
+/pyu-ldap-admin - 172.18.0.4
+/pyu-postgres - 172.18.0.10
+/pyu-py-router - 172.18.0.2
+/pyu-py-switch - 172.18.0.5
+/pyu-semaphore - 172.18.0.16
+/pyu-semaphore-db - 172.18.0.7
+/pyu-vle - 172.18.0.3

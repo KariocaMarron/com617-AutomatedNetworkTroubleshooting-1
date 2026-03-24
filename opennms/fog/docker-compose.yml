@@ -1,0 +1,49 @@
+services:
+  fog-mysql:
+    image: mysql:5.7
+    container_name: pyu-fog-db
+    hostname: fog-db
+    environment:
+      MYSQL_ROOT_PASSWORD: fogpassword
+      MYSQL_DATABASE: fog
+      MYSQL_USER: fog
+      MYSQL_PASSWORD: fogpass
+    volumes:
+      - fog-mysql:/var/lib/mysql
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.8
+    restart: unless-stopped
+
+  fog-web:
+    image: php:7.4-apache
+    container_name: pyu-fog-server
+    hostname: pyu-fog
+    depends_on:
+      - fog-mysql
+    ports:
+      - "8085:80"
+    environment:
+      MYSQL_HOST: fog-db
+      MYSQL_DATABASE: fog
+      MYSQL_USER: fog
+      MYSQL_PASSWORD: fogpass
+    volumes:
+      - ./fog-web:/var/www/html
+      - fog-images:/var/www/html/images
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.17
+    restart: unless-stopped
+
+volumes:
+  fog-mysql:
+  fog-images:
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# COM615 Network Management - Pyongyang University OpenNMS Lab

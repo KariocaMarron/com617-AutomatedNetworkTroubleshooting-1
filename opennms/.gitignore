@@ -1,0 +1,17 @@
+# Temporary files
+*.tmp
+*.log
+*.bak
+HTTP
+ICMP
+
+# Audit archives (large files)
+*.tar.gz
+audit_output_*/
+
+# PDF generated files (can regenerate)
+*.pdf
+
+# OS files
+.DS_Store
+Thumbs.db

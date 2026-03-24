@@ -1,0 +1,30 @@
+QUICK ACCESS - PYONGYANG UNIVERSITY INFRASTRUCTURE
+==================================================
+
+MAIN MONITORING:
+OpenNMS: http://localhost:8980/opennms (admin/admin)
+
+CORE SERVICES:
+VLE:       http://localhost:8081
+LDAP:      http://localhost:8082 (cn=admin,dc=pyu,dc=edu,dc=kp/admin)
+DNS/DHCP:  http://localhost:8083
+Semaphore: http://localhost:8084 (admin/admin)
+FOG:       http://localhost:8085
+
+REMOTE CAMPUSES:
+Hamhung:   http://172.18.0.32
+Chongjin:  http://172.18.0.42
+
+CONTAINERS: 24 total
+- 15 Pyongyang
+- 4 Hamhung  
+- 4 Chongjin
+- 1 Supporting
+
+MONITORED NODES: 39
+
+IP RANGES:
+- Services: 172.18.0.5-17
+- PYU Network: 172.18.0.20-22
+- Hamhung: 172.18.0.30-32
+- Chongjin: 172.18.0.40-42
