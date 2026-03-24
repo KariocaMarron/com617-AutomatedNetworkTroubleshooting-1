@@ -63,3 +63,14 @@ core-deploy/
 
 # drawio backup
 *.bkp
+
+# MARR Lab — sensitive and generated files
+.env
+*.pyc
+__pycache__/
+python/venv/
+ansible/*.retry
+ansible/group_vars/vault.yml
+/tmp/ansible_results/
+*.log
+.DS_Store
