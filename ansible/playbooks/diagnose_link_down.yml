@@ -1,0 +1,59 @@
+---
+- name: Diagnose Link Down Event
+  hosts: localhost
+  gather_facts: no
+  vars:
+    output_dir: /tmp/ansible_results
+    affected_interface: "{{ alert_interface | default('eth1') }}"
+    target: "{{ target_host | default('router1') }}"
+    container: "clab-com617-marr-lab-{{ target }}"
+
+  tasks:
+    - name: Create output directory
+      file:
+        path: "{{ output_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Collect interface status
+      community.docker.docker_container_exec:
+        container: "{{ container }}"
+        command: vtysh -c "show interface {{ affected_interface }}"
+      register: iface_status
+      ignore_errors: yes
+
+    - name: Collect OSPF neighbours
+      community.docker.docker_container_exec:
+        container: "{{ container }}"
+        command: vtysh -c "show ip ospf neighbor"
+      register: ospf_neighbors
+      ignore_errors: yes
+
+    - name: Collect BGP summary
+      community.docker.docker_container_exec:
+        container: "{{ container }}"
+        command: vtysh -c "show ip bgp summary"
+      register: bgp_summary
+      ignore_errors: yes
+
+    - name: Collect routing table
+      community.docker.docker_container_exec:
+        container: "{{ container }}"
+        command: vtysh -c "show ip route"
+      register: route_table
+      ignore_errors: yes
+
+    - name: Save diagnostic results to JSON
+      copy:
+        content: |
+          {
+            "playbook": "diagnose_link_down",
+            "host": "{{ target }}",
+            "container": "{{ container }}",
+            "alert_interface": "{{ affected_interface }}",
+            "interface_status": {{ iface_status.stdout | default('') | to_json }},
+            "ospf_neighbors": {{ ospf_neighbors.stdout | default('') | to_json }},
+            "bgp_summary": {{ bgp_summary.stdout | default('') | to_json }},
+            "route_table": {{ route_table.stdout | default('') | to_json }}
+          }
+        dest: "{{ output_dir }}/{{ target }}_link_down.json"
