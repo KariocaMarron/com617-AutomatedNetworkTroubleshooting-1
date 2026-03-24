@@ -45,13 +45,41 @@ topology:
       env:
         HOSTNAME: router3
 
-    # ── SNMP Trap Receiver (bridges to OpenNMS) ───────────────────────
+    # ── SNMP Notifier ─────────────────────────────────────────────────
     snmp-notifier:
       kind: linux
       image: ubuntu:22.04
       mgmt-ipv4: 172.20.0.14
       ports:
         - 162:162/udp
+
+    # ── OpenNMS Horizon — Monitor layer ───────────────────────────────
+    opennms:
+      kind: linux
+      image: opennms/horizon:33.0.2
+      mgmt-ipv4: 172.20.0.20
+      ports:
+        - "8980:8980/tcp"
+        - "8101:8101/tcp"
+      binds:
+        - configs/opennms/opennms.env:/opt/opennms/etc/opennms.env
+        - configs/opennms/overlay:/opt/opennms-overlay
+      env:
+        POSTGRES_HOST: 172.20.0.21
+        POSTGRES_PORT: "5432"
+        POSTGRES_USER: opennms
+        POSTGRES_PASSWORD: opennms
+      cmd: "-s"
+
+    # ── PostgreSQL for OpenNMS ─────────────────────────────────────────
+    opennms-db:
+      kind: linux
+      image: postgres:14
+      mgmt-ipv4: 172.20.0.21
+      env:
+        POSTGRES_USER: opennms
+        POSTGRES_PASSWORD: opennms
+        POSTGRES_DB: opennms
 
   links:
     # router1 <-> router2  (primary link)

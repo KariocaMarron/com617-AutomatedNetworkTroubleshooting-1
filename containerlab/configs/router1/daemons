@@ -1,4 +1,5 @@
 zebra=yes
+snmpd=yes
 bgpd=yes
 ospfd=yes
 ospf6d=no
