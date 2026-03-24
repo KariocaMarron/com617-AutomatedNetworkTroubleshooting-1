@@ -74,3 +74,4 @@ ansible/group_vars/vault.yml
 /tmp/ansible_results/
 *.log
 .DS_Store
+containerlab/clab-*
