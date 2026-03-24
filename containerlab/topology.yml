@@ -15,40 +15,40 @@ topology:
     # ── Router 1 — Core (hub) ─────────────────────────────────────────
     router1:
       kind: linux
-      image: frrouting/frr:v9.1.0
+      image: frrouting/frr:v8.4.1
       mgmt-ipv4: 172.20.0.11
       binds:
-        - containerlab/configs/router1/frr.conf:/etc/frr/frr.conf
-        - containerlab/configs/router1/daemons:/etc/frr/daemons
+        - configs/router1/frr.conf:/etc/frr/frr.conf
+        - configs/router1/daemons:/etc/frr/daemons
       env:
         HOSTNAME: router1
 
     # ── Router 2 — Distribution ───────────────────────────────────────
     router2:
       kind: linux
-      image: frrouting/frr:v9.1.0
+      image: frrouting/frr:v8.4.1
       mgmt-ipv4: 172.20.0.12
       binds:
-        - containerlab/configs/router2/frr.conf:/etc/frr/frr.conf
-        - containerlab/configs/router2/daemons:/etc/frr/daemons
+        - configs/router2/frr.conf:/etc/frr/frr.conf
+        - configs/router2/daemons:/etc/frr/daemons
       env:
         HOSTNAME: router2
 
     # ── Router 3 — Distribution ───────────────────────────────────────
     router3:
       kind: linux
-      image: frrouting/frr:v9.1.0
+      image: frrouting/frr:v8.4.1
       mgmt-ipv4: 172.20.0.13
       binds:
-        - containerlab/configs/router3/frr.conf:/etc/frr/frr.conf
-        - containerlab/configs/router3/daemons:/etc/frr/daemons
+        - configs/router3/frr.conf:/etc/frr/frr.conf
+        - configs/router3/daemons:/etc/frr/daemons
       env:
         HOSTNAME: router3
 
     # ── SNMP Trap Receiver (bridges to OpenNMS) ───────────────────────
     snmp-notifier:
       kind: linux
-      image: polinux/snmptrapd
+      image: ubuntu:22.04
       mgmt-ipv4: 172.20.0.14
       ports:
         - 162:162/udp
