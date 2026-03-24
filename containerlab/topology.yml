@@ -1,0 +1,62 @@
+name: com617-marr-lab
+
+mgmt:
+  network: marr-mgmt
+  ipv4-subnet: 172.20.0.0/24
+
+topology:
+
+  defaults:
+    env:
+      TOPO_FILE: /etc/frr/frr.conf
+
+  nodes:
+
+    # ── Router 1 — Core (hub) ─────────────────────────────────────────
+    router1:
+      kind: linux
+      image: frrouting/frr:v9.1.0
+      mgmt-ipv4: 172.20.0.11
+      binds:
+        - containerlab/configs/router1/frr.conf:/etc/frr/frr.conf
+        - containerlab/configs/router1/daemons:/etc/frr/daemons
+      env:
+        HOSTNAME: router1
+
+    # ── Router 2 — Distribution ───────────────────────────────────────
+    router2:
+      kind: linux
+      image: frrouting/frr:v9.1.0
+      mgmt-ipv4: 172.20.0.12
+      binds:
+        - containerlab/configs/router2/frr.conf:/etc/frr/frr.conf
+        - containerlab/configs/router2/daemons:/etc/frr/daemons
+      env:
+        HOSTNAME: router2
+
+    # ── Router 3 — Distribution ───────────────────────────────────────
+    router3:
+      kind: linux
+      image: frrouting/frr:v9.1.0
+      mgmt-ipv4: 172.20.0.13
+      binds:
+        - containerlab/configs/router3/frr.conf:/etc/frr/frr.conf
+        - containerlab/configs/router3/daemons:/etc/frr/daemons
+      env:
+        HOSTNAME: router3
+
+    # ── SNMP Trap Receiver (bridges to OpenNMS) ───────────────────────
+    snmp-notifier:
+      kind: linux
+      image: polinux/snmptrapd
+      mgmt-ipv4: 172.20.0.14
+      ports:
+        - 162:162/udp
+
+  links:
+    # router1 <-> router2  (primary link)
+    - endpoints: ["router1:eth1", "router2:eth1"]
+    # router1 <-> router3  (primary link)
+    - endpoints: ["router1:eth2", "router3:eth1"]
+    # router2 <-> router3  (redundant link)
+    - endpoints: ["router2:eth2", "router3:eth2"]
