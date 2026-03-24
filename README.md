@@ -7,4 +7,4 @@ See [Project Brief](../main/docs/ProjectBrief.md)
 
 ## Project Organisation
 
-[workup](../main/workup) contains experimental work and examples not committed to the main project.
+[workup](../main/workup) contains experimental work and examples not committed to the main project.# MARR Lab — Jose Vasconcelos
