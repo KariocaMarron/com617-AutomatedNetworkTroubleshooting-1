@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import"
+              date-stamp="2025-12-29T18:45:00.000Z"
+              foreign-source="pyu-services">
+    
+    <node foreign-id="pyu-vle" node-label="Pyongyang Virtual Learning Environment (VLE)">
+        <interface ip-addr="pyu-vle" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        
+        <category name="Production"/>
+        <category name="VLE"/>
+        <category name="Web-Server"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+</model-import>

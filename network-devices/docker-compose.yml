@@ -1,0 +1,104 @@
+services:
+  # Pyongyang Central Campus Devices
+  pyu-core-switch:
+    image: tandrup/snmpsim
+    container_name: pyu-core-switch
+    hostname: pyu-core-sw01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.20
+    restart: unless-stopped
+
+  pyu-dist-switch:
+    image: tandrup/snmpsim
+    container_name: pyu-dist-switch
+    hostname: pyu-dist-sw01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.21
+    restart: unless-stopped
+
+  pyu-firewall:
+    image: tandrup/snmpsim
+    container_name: pyu-firewall
+    hostname: pyu-fw01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.22
+    restart: unless-stopped
+
+  # Hamhung Campus Devices
+  hamhung-edge-router:
+    image: tandrup/snmpsim
+    container_name: hamhung-router
+    hostname: hamhung-rtr01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.30
+    restart: unless-stopped
+
+  hamhung-access-switch:
+    image: tandrup/snmpsim
+    container_name: hamhung-switch
+    hostname: hamhung-sw01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.31
+    restart: unless-stopped
+
+  hamhung-web-server:
+    image: nginx:alpine
+    container_name: hamhung-web
+    hostname: hamhung-web01
+    volumes:
+      - ./hamhung-web:/usr/share/nginx/html
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.32
+    restart: unless-stopped
+
+  # Chongjin Campus Devices
+  chongjin-edge-router:
+    image: tandrup/snmpsim
+    container_name: chongjin-router
+    hostname: chongjin-rtr01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.40
+    restart: unless-stopped
+
+  chongjin-access-switch:
+    image: tandrup/snmpsim
+    container_name: chongjin-switch
+    hostname: chongjin-sw01
+    command: /bin/sh -c "snmpsimd.py --agent-udpv4-endpoint=0.0.0.0:161 --process-user=snmpsim --process-group=nogroup"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.41
+    restart: unless-stopped
+
+  chongjin-web-server:
+    image: nginx:alpine
+    container_name: chongjin-web
+    hostname: chongjin-web01
+    volumes:
+      - ./chongjin-web:/usr/share/nginx/html
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.42
+    restart: unless-stopped
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# Static IPs configured for stability
+

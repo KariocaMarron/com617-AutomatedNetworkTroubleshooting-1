@@ -1,0 +1,94 @@
+services:
+  awx-postgres:
+    image: postgres:13
+    container_name: pyu-awx-postgres
+    hostname: awx-postgres
+    environment:
+      POSTGRES_USER: awx
+      POSTGRES_PASSWORD: awxpass
+      POSTGRES_DB: awx
+    volumes:
+      - awx-postgres-data:/var/lib/postgresql/data
+    networks:
+      - kafka_pyu-main
+    restart: unless-stopped
+
+  awx-redis:
+    image: redis:7-alpine
+    container_name: pyu-awx-redis
+    hostname: awx-redis
+    networks:
+      - kafka_pyu-main
+    restart: unless-stopped
+
+  awx-web:
+    image: ghcr.io/ansible/awx:24.6.1
+    container_name: pyu-awx-web
+    hostname: awx-web
+    depends_on:
+      - awx-postgres
+      - awx-redis
+    ports:
+      - "8084:8052"
+    environment:
+      SECRET_KEY: "awxsecret123456789012345678901234"
+      DATABASE_USER: awx
+      DATABASE_PASSWORD: awxpass
+      DATABASE_NAME: awx
+      DATABASE_PORT: 5432
+      DATABASE_HOST: awx-postgres
+      REDIS_HOST: awx-redis
+      REDIS_PORT: 6379
+      AWX_SETTINGS_FILE: /etc/tower/settings.py
+      AWX_AUTO_REGISTER: "False"
+      AWX_RUNTIME_MODE: "docker"
+      DISABLE_LOCAL_RECEPTOR: "False"
+    command: /usr/bin/launch_awx_web.sh
+    volumes:
+      - awx-projects:/var/lib/awx/projects
+      - ./awx-config/settings.py:/etc/tower/settings.py:ro
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.15
+    restart: unless-stopped
+
+  awx-task:
+    image: ghcr.io/ansible/awx:24.6.1
+    container_name: pyu-awx-task
+    hostname: awx-task
+    depends_on:
+      - awx-postgres
+      - awx-redis
+      - awx-web
+    environment:
+      SECRET_KEY: "awxsecret123456789012345678901234"
+      DATABASE_USER: awx
+      DATABASE_PASSWORD: awxpass
+      DATABASE_NAME: awx
+      DATABASE_PORT: 5432
+      DATABASE_HOST: awx-postgres
+      REDIS_HOST: awx-redis
+      REDIS_PORT: 6379
+      AWX_SETTINGS_FILE: /etc/tower/settings.py
+      AWX_AUTO_REGISTER: "False"
+      AWX_RUNTIME_MODE: "docker"
+      DISABLE_LOCAL_RECEPTOR: "False"
+    command: /usr/bin/launch_awx_task.sh
+    volumes:
+      - awx-projects:/var/lib/awx/projects
+      - ./awx-config/settings.py:/etc/tower/settings.py:ro
+    networks:
+      - kafka_pyu-main
+    restart: unless-stopped
+
+volumes:
+  awx-postgres-data:
+  awx-projects:
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+#Jose Vasconcelos - Dec 2025
+#GitHub - KariocaMarron
+#acme5bataj10@outlook.com

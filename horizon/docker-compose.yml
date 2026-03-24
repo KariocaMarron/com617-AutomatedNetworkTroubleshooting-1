@@ -1,0 +1,72 @@
+services:
+  database:
+    image: postgres:14
+    container_name: pyu-postgres
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: opennms
+      POSTGRES_PASSWORD: opennms
+      POSTGRES_DB: opennms
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opennms"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.10
+        
+  activemq:
+    image: apache/activemq-classic:5.18.3
+    container_name: pyu-activemq
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    ports:
+      - "61616:61616/tcp"
+      - "8161:8161/tcp"
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.9
+        
+  horizon:
+    image: opennms/horizon:33.0.2
+    container_name: pyu-horizon
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: opennms
+      POSTGRES_PASSWORD: opennms
+    volumes:
+      - horizon-data:/opennms-data
+      - ./overlay:/opt/opennms-overlay
+    command: ["-s"]
+    ports:
+      - "8980:8980/tcp"
+      - "8101:8101/tcp"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-I", "http://localhost:8980/opennms/login.jsp"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.11
+
+volumes:
+  postgres-data:
+  horizon-data:
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# Static IPs configured for stability
