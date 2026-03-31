@@ -1,0 +1,9 @@
+FROM frrouting/frr:v8.4.0
+
+USER root
+
+RUN apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main net-snmp net-snmp-tools
+
+COPY configs/snmpd-default.conf /etc/snmp/snmpd.conf
+
+CMD ["/sbin/tini", "--", "/usr/lib/frr/docker-start"]

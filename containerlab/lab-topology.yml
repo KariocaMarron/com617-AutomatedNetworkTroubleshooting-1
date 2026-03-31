@@ -2,33 +2,38 @@ name: marr-lab
 
 topology:
   nodes:
-
     router1:
       kind: linux
-      image: frrouting/frr:v8.4.0
+      image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.101
       binds:
         - configs/router1/daemons:/etc/frr/daemons
         - configs/router1/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
+      exec:
+        - snmpd -c /etc/snmp/snmpd.conf
 
     router2:
       kind: linux
-      image: frrouting/frr:v8.4.0
+      image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.102
       binds:
         - configs/router2/daemons:/etc/frr/daemons
         - configs/router2/frr.conf:/etc/frr/frr.conf
         - configs/router2/snmpd.conf:/etc/snmp/snmpd.conf
+      exec:
+        - snmpd -c /etc/snmp/snmpd.conf
 
     router3:
       kind: linux
-      image: frrouting/frr:v8.4.0
+      image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.103
       binds:
         - configs/router3/daemons:/etc/frr/daemons
         - configs/router3/frr.conf:/etc/frr/frr.conf
         - configs/router3/snmpd.conf:/etc/snmp/snmpd.conf
+      exec:
+        - snmpd -c /etc/snmp/snmpd.conf
 
   links:
     - endpoints: ["router1:eth1", "router2:eth1"]
