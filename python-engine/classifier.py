@@ -8,6 +8,13 @@ OPENNMS_PASS = "admin"
 ANSIBLE_DIR = "/home/cyber/Solent_Final_Lab/ansible"
 REPORTS_DIR = "/home/cyber/Solent_Final_Lab/reports"
 POLL_INTERVAL = 10
+
+MATTERMOST_WEBHOOK = "http://172.21.0.31:8065/hooks/qn84n14hxjn5u8mjb79rqq7k4a"
+SEVERITY_EMOJI = {
+    "critical": ":red_circle:",
+    "major":    ":large_orange_circle:",
+    "normal":   ":large_green_circle:"
+}
 processed_events = set()
 
 RULES = {
@@ -84,6 +91,30 @@ def save_report(event, rule, result):
     print(f"  [REPORT] {path}")
     return report
 
+def notify_mattermost(report):
+    emoji = SEVERITY_EMOJI.get(report["severity"], ":white_circle:")
+    text = (
+        f"{emoji} **MARR ALERT — {report['fault'].upper()}**\n"
+        f"| Field | Value |\n"
+        f"|---|---|\n"
+        f"| Report ID | `{report['id']}` |\n"
+        f"| Node | `{report['node']}` |\n"
+        f"| Source | `{report['source']}` |\n"
+        f"| Severity | {report['severity']} |\n"
+        f"| Fault | {report['fault']} |\n"
+        f"| Diagnostics | {report['diagnostics']['status']} |\n"
+        f"| Time | {report['time']} |"
+    )
+    try:
+        r = requests.post(MATTERMOST_WEBHOOK,
+            json={"text": text, "username": "MARR-Bot", "icon_emoji": ":robot:"},
+            timeout=5)
+        if r.status_code == 200:
+            print(f"  [MATTERMOST] Notification sent")
+        else:
+            print(f"  [MATTERMOST] Failed: {r.status_code}")
+    except Exception as e:
+        print(f"  [MATTERMOST] Error: {e}")
 def process(event):
     eid = event.get("id")
     if eid in processed_events:
@@ -94,7 +125,8 @@ def process(event):
     processed_events.add(eid)
     print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={get_node_name(event)} | severity={rule['severity']}")
     result = run_playbook(rule["playbook"], event.get("ipAddress","unknown"), rule["fault"])
-    save_report(event, rule, result)
+    report = save_report(event, rule, result)
+    notify_mattermost(report)
 
 #def save_report(event, rule, result):
 #    os.makedirs(REPORTS_DIR, exist_ok=True)
@@ -126,7 +158,8 @@ def process(event):
 #    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={event.get('nodeLabel')} | severity={rule['severity']}")
 #    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={event.get('nodeLabel')} | severity={rule['severity']}")
 #    result = run_playbook(rule["playbook"], event.get("ipAddress","unknown"), rule["fault"])
-#    save_report(event, rule, result)
+#    report = save_report(event, rule, result)
+    notify_mattermost(report)
 
 def main():
     print("="*50)
@@ -142,3 +175,5 @@ if __name__ == "__main__":
     main()
 
 # Jose Vasconcelos - March 2026
+
+
