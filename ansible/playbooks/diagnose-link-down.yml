@@ -1,0 +1,33 @@
+---
+- name: Link-Down Diagnostic
+  hosts: all
+  gather_facts: false
+  vars:
+    report_dir: /home/cyber/Solent_Final_Lab/reports
+    fault: "{{ fault | default('link-down') }}"
+    target: "{{ target | default('unknown') }}"
+  tasks:
+    - name: Get interface status
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show interface"
+      register: iface_out
+      ignore_errors: true
+    - name: Get BGP summary
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show bgp summary"
+      register: bgp_out
+      ignore_errors: true
+    - name: Get IP routes
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show ip route"
+      register: route_out
+      ignore_errors: true
+    - name: Save diagnostic results to JSON
+      copy:
+        content: "{{ {'playbook': 'diagnose-link-down', 'router': inventory_hostname, 'fault': fault, 'target': target, 'interfaces': iface_out.stdout | default('unavailable'), 'bgp_summary': bgp_out.stdout | default('unavailable'), 'routes': route_out.stdout | default('unavailable')} | to_nice_json }}"
+        dest: "{{ report_dir }}/diag-{{ inventory_hostname }}-link-down.json"
+      delegate_to: localhost
+      ignore_errors: true

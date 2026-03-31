@@ -55,7 +55,7 @@ def run_playbook(playbook, node_ip, fault):
     if not os.path.exists(path):
         return {"status": "skipped", "reason": "playbook not found"}
     try:
-        r = subprocess.run(["ansible-playbook", path,
+        r = subprocess.run(["ansible-playbook", "-i", f"{ANSIBLE_DIR}/inventory.yml", path,
             "-e", f"target={node_ip}", "-e", f"fault={fault}"],
             capture_output=True, text=True, timeout=60)
         return {"status": "ok" if r.returncode == 0 else "failed", "out": r.stdout[-300:]}

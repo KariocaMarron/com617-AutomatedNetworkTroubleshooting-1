@@ -1,0 +1,33 @@
+---
+- name: BGP Diagnostic
+  hosts: all
+  gather_facts: false
+  vars:
+    report_dir: /home/cyber/Solent_Final_Lab/reports
+    fault: "{{ fault | default('bgp-change') }}"
+    target: "{{ target | default('unknown') }}"
+  tasks:
+    - name: Get BGP summary
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show bgp summary"
+      register: bgp_out
+      ignore_errors: true
+    - name: Get BGP neighbours
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show bgp neighbors"
+      register: bgp_nb
+      ignore_errors: true
+    - name: Get IP routes
+      community.docker.docker_container_exec:
+        container: "{{ inventory_hostname }}"
+        command: vtysh -c "show ip route bgp"
+      register: route_out
+      ignore_errors: true
+    - name: Save diagnostic results to JSON
+      copy:
+        content: "{{ {'playbook': 'diagnose-bgp', 'router': inventory_hostname, 'fault': fault, 'target': target, 'bgp_summary': bgp_out.stdout | default('unavailable'), 'bgp_neighbors': bgp_nb.stdout | default('unavailable'), 'routes': route_out.stdout | default('unavailable')} | to_nice_json }}"
+        dest: "{{ report_dir }}/diag-{{ inventory_hostname }}-bgp.json"
+      delegate_to: localhost
+      ignore_errors: true

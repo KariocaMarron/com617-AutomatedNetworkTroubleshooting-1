@@ -1,0 +1,14 @@
+all:
+  hosts:
+    router1:
+      ansible_host: clab-marr-lab-router1
+      ansible_connection: community.docker.docker
+      router_ip: 172.21.0.101
+    router2:
+      ansible_host: clab-marr-lab-router2
+      ansible_connection: community.docker.docker
+      router_ip: 172.21.0.102
+    router3:
+      ansible_host: clab-marr-lab-router3
+      ansible_connection: community.docker.docker
+      router_ip: 172.21.0.103
