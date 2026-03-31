@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import"
+              date-stamp="2026-03-24T00:00:00.000Z"
+              foreign-source="marr-lab">
+
+    <node foreign-id="router1" node-label="router1">
+        <interface ip-addr="172.20.0.11" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="MARR-Lab"/>
+        <category name="FRR-Router"/>
+        <category name="Core"/>
+    </node>
+
+    <node foreign-id="router2" node-label="router2">
+        <interface ip-addr="172.20.0.12" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="MARR-Lab"/>
+        <category name="FRR-Router"/>
+        <category name="Distribution"/>
+    </node>
+
+    <node foreign-id="router3" node-label="router3">
+        <interface ip-addr="172.20.0.13" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="MARR-Lab"/>
+        <category name="FRR-Router"/>
+        <category name="Distribution"/>
+    </node>
+
+</model-import>

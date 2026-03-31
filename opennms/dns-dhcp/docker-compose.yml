@@ -1,0 +1,23 @@
+services:
+  dns-dhcp:
+    image: jpillora/dnsmasq:latest
+    container_name: pyu-dns-dhcp
+    hostname: pyu-dns
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+    ports:
+      - "8083:8080"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.12
+    restart: unless-stopped
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+#Jose Vasconcelos - Dec 2025
+#GitHub - KariocaMarron
+#acme5bataj10@outlook.com

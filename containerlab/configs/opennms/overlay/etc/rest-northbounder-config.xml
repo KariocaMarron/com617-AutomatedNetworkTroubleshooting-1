@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest-northbounder-config>
+    <northbounder>
+        <name>marr-python-receiver</name>
+        <url>http://172.20.0.1:5000/alert</url>
+        <method>POST</method>
+        <encoding>UTF-8</encoding>
+        <accept-alarm-filter>
+            <include-all-alarms>true</include-all-alarms>
+        </accept-alarm-filter>
+    </northbounder>
+</rest-northbounder-config>

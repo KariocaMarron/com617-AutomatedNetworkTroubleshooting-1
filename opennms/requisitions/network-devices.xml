@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import"
+              date-stamp="2025-12-29T15:40:00.000Z"
+              foreign-source="network-infrastructure">
+    
+    <!-- Pyongyang Central Campus Network Devices -->
+    <node foreign-id="pyu-core-switch" node-label="PYU Core Switch">
+        <interface ip-addr="pyu-core-switch" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <node foreign-id="pyu-dist-switch" node-label="PYU Distribution Switch">
+        <interface ip-addr="pyu-dist-switch" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <node foreign-id="pyu-firewall" node-label="PYU Firewall">
+        <interface ip-addr="pyu-firewall" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <!-- Hamhung Campus Network Devices -->
+    <node foreign-id="hamhung-router" node-label="Hamhung Edge Router">
+        <interface ip-addr="hamhung-router" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Hamhung"/>
+    </node>
+    
+    <node foreign-id="hamhung-switch" node-label="Hamhung Access Switch">
+        <interface ip-addr="hamhung-switch" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Hamhung"/>
+    </node>
+    
+    <node foreign-id="hamhung-web" node-label="Hamhung Web Server">
+        <interface ip-addr="hamhung-web" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Web-Server"/>
+        <category name="Hamhung"/>
+    </node>
+    
+    <!-- Chongjin Campus Network Devices -->
+    <node foreign-id="chongjin-router" node-label="Chongjin Edge Router">
+        <interface ip-addr="chongjin-router" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Chongjin"/>
+    </node>
+    
+    <node foreign-id="chongjin-switch" node-label="Chongjin Access Switch">
+        <interface ip-addr="chongjin-switch" status="1" snmp-primary="P">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="SNMP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Network-Device"/>
+        <category name="Chongjin"/>
+    </node>
+    
+    <node foreign-id="chongjin-web" node-label="Chongjin Web Server">
+        <interface ip-addr="chongjin-web" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Web-Server"/>
+        <category name="Chongjin"/>
+    </node>
+    
+</model-import>

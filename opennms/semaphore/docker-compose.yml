@@ -1,0 +1,57 @@
+services:
+  semaphore-mysql:
+    image: mysql:8.0
+    container_name: pyu-semaphore-db
+    hostname: semaphore-db
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_DATABASE: semaphore
+      MYSQL_USER: semaphore
+      MYSQL_PASSWORD: semaphorepass
+    volumes:
+      - semaphore-mysql:/var/lib/mysql
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.7
+    restart: unless-stopped
+
+  semaphore:
+    image: semaphoreui/semaphore:latest
+    container_name: pyu-semaphore
+    hostname: pyu-ansible
+    depends_on:
+      - semaphore-mysql
+    ports:
+      - "8084:3000"
+    environment:
+      SEMAPHORE_DB_DIALECT: mysql
+      SEMAPHORE_DB_HOST: semaphore-db
+      SEMAPHORE_DB_PORT: 3306
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: semaphorepass
+      SEMAPHORE_DB_NAME: semaphore
+      SEMAPHORE_ADMIN_PASSWORD: admin
+      SEMAPHORE_ADMIN_NAME: admin
+      SEMAPHORE_ADMIN_EMAIL: admin@pyu.edu.kp
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: semaphorekey123456789012345678
+      SEMAPHORE_LDAP_ACTIVATED: 'no'
+      TZ: UTC
+    volumes:
+      - semaphore-data:/etc/semaphore
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.16
+    restart: unless-stopped
+
+volumes:
+  semaphore-mysql:
+  semaphore-data:
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# Static IPs configured for stability

@@ -1,0 +1,23 @@
+# VLE (Virtual Learning Environment) - NGINX Simulation
+# Lightweight VLE for monitoring demonstration
+services:
+  vle:
+    image: nginx:alpine
+    container_name: pyu-vle
+    hostname: pyu-vle
+    ports:
+      - "8081:80"
+    volumes:
+      - ./vle-content:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    networks:
+      kafka_pyu-main:
+        ipv4_address: 172.18.0.3
+
+networks:
+  kafka_pyu-main:
+    external: true
+
+# Jose Vasconcelos - Jan 2026
+# GitHub - KariocaMarron
+# Static IP configured for stability

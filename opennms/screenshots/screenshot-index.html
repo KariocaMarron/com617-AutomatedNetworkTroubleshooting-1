@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PYU Infrastructure Screenshots</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            background: #ecf0f1;
+            border-left: 4px solid #95a5a6;
+        }
+        .checklist li.done {
+            background: #d5f4e6;
+            border-left-color: #27ae60;
+        }
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .url {
+            font-family: monospace;
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>📸 Pyongyang University Infrastructure - Screenshot Documentation</h1>
+    
+    <div class="info-box">
+        <strong>Project:</strong> COM615 Network Management<br>
+        <strong>Student:</strong> Jose Vasconcelos (KariocaMarron)<br>
+        <strong>Date:</strong> 29 December 2025<br>
+        <strong>Status:</strong> Ready for screenshot collection
+    </div>
+
+    <div class="section">
+        <h2>📊 Quick Statistics</h2>
+        <ul>
+            <li><strong>Total Containers:</strong> 24</li>
+            <li><strong>Monitored Nodes:</strong> 39</li>
+            <li><strong>Campuses:</strong> 3 (Pyongyang, Hamhung, Chongjin)</li>
+            <li><strong>Core Services:</strong> 5</li>
+            <li><strong>Network Devices:</strong> 9</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🌐 Service Access URLs</h2>
+        <table>
+            <tr>
+                <th>Service</th>
+                <th>URL</th>
+                <th>Credentials</th>
+            </tr>
+            <tr>
+                <td>OpenNMS</td>
+                <td><span class="url">http://localhost:8980/opennms</span></td>
+                <td>admin / admin</td>
+            </tr>
+            <tr>
+                <td>VLE</td>
+                <td><span class="url">http://localhost:8081</span></td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>LDAP Admin</td>
+                <td><span class="url">http://localhost:8082</span></td>
+                <td>cn=admin,dc=pyu,dc=edu,dc=kp / admin</td>
+            </tr>
+            <tr>
+                <td>DNS/DHCP</td>
+                <td><span class="url">http://localhost:8083</span></td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>Semaphore</td>
+                <td><span class="url">http://localhost:8084</span></td>
+                <td>admin / admin</td>
+            </tr>
+            <tr>
+                <td>FOG Server</td>
+                <td><span class="url">http://localhost:8085</span></td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>Hamhung Web</td>
+                <td><span class="url">http://172.18.0.32</span></td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>Chongjin Web</td>
+                <td><span class="url">http://172.18.0.42</span></td>
+                <td>N/A</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>✅ Screenshot Checklist</h2>
+        
+        <h3>1. OpenNMS Dashboard (HIGH Priority)</h3>
+        <ul class="checklist">
+            <li>☐ Main dashboard with node summary</li>
+            <li>☐ Outage summary</li>
+            <li>☐ Alarm summary</li>
+            <li>☐ Surveillance view</li>
+        </ul>
+
+        <h3>2. Node List & Details (HIGH Priority)</h3>
+        <ul class="checklist">
+            <li>☐ Complete node list (39 nodes)</li>
+            <li>☐ VLE node details</li>
+            <li>☐ LDAP node details</li>
+            <li>☐ Network device with SNMP data</li>
+            <li>☐ Remote campus node details</li>
+        </ul>
+
+        <h3>3. Service Interfaces (HIGH Priority)</h3>
+        <ul class="checklist">
+            <li>☐ VLE homepage (port 8081)</li>
+            <li>☐ LDAP Admin interface (port 8082)</li>
+            <li>☐ DNS/DHCP interface (port 8083)</li>
+            <li>☐ Semaphore dashboard (port 8084)</li>
+            <li>☐ FOG Server interface (port 8085)</li>
+        </ul>
+
+        <h3>4. Network Topology (MEDIUM Priority)</h3>
+        <ul class="checklist">
+            <li>☐ Full network topology view</li>
+            <li>☐ Pyongyang campus detail</li>
+            <li>☐ Multi-campus connections</li>
+        </ul>
+
+        <h3>5. Remote Campuses (MEDIUM Priority)</h3>
+        <ul class="checklist">
+            <li>☐ Hamhung web portal</li>
+            <li>☐ Chongjin web portal</li>
+        </ul>
+
+        <h3>6. Infrastructure (LOW Priority)</h3>
+        <ul class="checklist">
+            <li>☐ Docker container list (24 containers)</li>
+            <li>☐ Resource usage statistics</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📝 Instructions</h2>
+        <ol>
+            <li>Start with HIGH priority items first</li>
+            <li>Use full screen (F11) for cleaner screenshots</li>
+            <li>Save with descriptive filenames (see SCREENSHOT_GUIDE.md)</li>
+            <li>Place all screenshots in this directory</li>
+            <li>Check off items as completed</li>
+        </ol>
+    </div>
+
+    <div class="info-box">
+        <strong>💡 Tip:</strong> For browser screenshots, use Firefox's built-in tool (right-click → Take Screenshot) 
+        or Chrome's developer tools (Ctrl+Shift+P → Capture screenshot)
+    </div>
+
+    <div class="section">
+        <h2>🎯 What Each Screenshot Demonstrates</h2>
+        <ul>
+            <li><strong>OpenNMS:</strong> Comprehensive monitoring platform deployment</li>
+            <li><strong>Services:</strong> Successful multi-service infrastructure</li>
+            <li><strong>Network Devices:</strong> SNMP monitoring capability</li>
+            <li><strong>Remote Campuses:</strong> Multi-site distributed architecture</li>
+            <li><strong>Topology:</strong> Network relationships and connections</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; color: #7f8c8d;">
+        <p>Pyongyang University Network Monitoring Infrastructure</p>
+        <p>COM615 - Network Management | December 2025</p>
+    </div>
+</body>
+</html>

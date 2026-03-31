@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import"
+              date-stamp="2025-12-29T19:30:00.000Z"
+              foreign-source="pyu-services">
+    
+    <!-- VLE -->
+    <node foreign-id="pyu-vle" node-label="Pyongyang Virtual Learning Environment (VLE)">
+        <interface ip-addr="pyu-vle" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="VLE"/>
+        <category name="Web-Server"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <!-- LDAP -->
+    <node foreign-id="pyu-ldap" node-label="Pyongyang LDAP Authentication Server">
+        <interface ip-addr="pyu-ldap" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="LDAP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Authentication"/>
+        <category name="Infrastructure"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <!-- DNS/DHCP -->
+    <node foreign-id="pyu-dns-dhcp" node-label="Pyongyang DNS/DHCP Server">
+        <interface ip-addr="pyu-dns-dhcp" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="DNS"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Infrastructure"/>
+        <category name="Network-Services"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <!-- Semaphore -->
+    <node foreign-id="pyu-semaphore" node-label="Pyongyang Ansible Automation (Semaphore)">
+        <interface ip-addr="pyu-semaphore" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="Configuration-Management"/>
+        <category name="Automation"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+    <!-- FOG Server -->
+    <node foreign-id="pyu-fog" node-label="Pyongyang FOG Server (PC Imaging)">
+        <interface ip-addr="pyu-fog-server" status="1" snmp-primary="N">
+            <monitored-service service-name="ICMP"/>
+            <monitored-service service-name="HTTP"/>
+        </interface>
+        <category name="Production"/>
+        <category name="PC-Imaging"/>
+        <category name="Infrastructure"/>
+        <category name="Pyongyang"/>
+    </node>
+    
+</model-import>

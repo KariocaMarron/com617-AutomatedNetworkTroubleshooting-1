@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snmp-config xmlns="http://xmlns.opennms.org/xsd/config/snmp"
+             port="161"
+             retry="3"
+             timeout="800"
+             read-community="public"
+             version="v2c"
+             max-vars-per-pdu="10">
+    <definition version="v2c" read-community="public">
+        <range begin="172.20.0.11" end="172.20.0.13"/>
+    </definition>
+</snmp-config>
