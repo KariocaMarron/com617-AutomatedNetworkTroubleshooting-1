@@ -1,0 +1,84 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: ant-postgres
+    environment:
+      - POSTGRES_USER=opennms
+      - POSTGRES_PASSWORD=opennms
+      - POSTGRES_DB=opennms
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ant-mgmt
+
+  opennms:
+    image: opennms/horizon:latest
+    container_name: ant-opennms
+    command: ["-s"]
+    ports:
+      - "8980:8980"
+      - "162:162/udp"
+      - "514:514/udp"
+    environment:
+      - TZ=Europe/London
+      - POSTGRES_HOST=ant-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=opennms
+      - POSTGRES_PASSWORD=opennms
+      - POSTGRES_DB=opennms
+    volumes:
+      - opennms-data:/opennms-data
+    networks:
+      - ant-mgmt
+    depends_on:
+      - postgres
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ant-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ant-mgmt
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ant-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ant-mgmt
+
+  mattermost:
+    image: mattermost/mattermost-team-edition:latest
+    container_name: ant-mattermost
+    command: ["mattermost", "server"]
+    ports:
+      - "8065:8065"
+    environment:
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mattermost:mattermost@ant-postgres/mattermost?sslmode=disable
+    volumes:
+      - mattermost-data:/mattermost/data
+    networks:
+      - ant-mgmt
+    depends_on:
+      - postgres
+
+networks:
+  ant-mgmt:
+    external: true
+    name: ant-mgmt
+
+volumes:
+  opennms-data:
+  postgres-data:
+  grafana-data:
+  mattermost-data:
