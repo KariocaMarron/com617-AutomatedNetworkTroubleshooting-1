@@ -1,0 +1,76 @@
+# MARR Lab - OpenNMS Core Stack
+# COM617 Industrial Consulting Project - Group 15
+# Components: PostgreSQL, ActiveMQ, OpenNMS Horizon
+
+services:
+
+  database:
+    image: postgres:14
+    container_name: marr-postgres
+    environment:
+      POSTGRES_USER: opennms
+      POSTGRES_PASSWORD: opennms
+      POSTGRES_DB: opennms
+    volumes:
+      - marr-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opennms"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      marr-net:
+        ipv4_address: 172.21.0.10
+
+  activemq:
+    image: apache/activemq-classic:5.18.3
+    container_name: marr-activemq
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+    ports:
+      - "61616:61616/tcp"
+      - "8161:8161/tcp"
+    networks:
+      marr-net:
+        ipv4_address: 172.21.0.9
+
+  horizon:
+    image: opennms/horizon:33.0.2
+    container_name: marr-horizon
+    environment:
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: opennms
+      POSTGRES_PASSWORD: opennms
+    volumes:
+      - marr-horizon-data:/opennms-data
+      - ../overlay:/opt/opennms-overlay
+    command: ["-s"]
+    ports:
+      - "8980:8980/tcp"
+      - "8101:8101/tcp"
+      - "10514:10514/udp"
+      - "1162:1162/udp"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-I", "http://localhost:8980/opennms/login.jsp"]
+      interval: 30s
+      timeout: 5s
+      retries: 6
+      start_period: 120s
+    networks:
+      marr-net:
+        ipv4_address: 172.21.0.11
+
+volumes:
+  marr-postgres-data:
+  marr-horizon-data:
+
+networks:
+  marr-net:
+    external: true
+
+# COM617 Group 15 - 2026

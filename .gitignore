@@ -1,0 +1,8 @@
+# Ignore secrets and runtime files
+*.env
+*.log
+reports/*.html
+reports/*.json
+__pycache__/
+*.pyc
+.DS_Store
