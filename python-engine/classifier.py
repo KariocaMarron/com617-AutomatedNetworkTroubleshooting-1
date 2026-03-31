@@ -16,6 +16,17 @@ SEVERITY_EMOJI = {
     "normal":   ":large_green_circle:"
 }
 processed_events = set()
+PROCESSED_FILE = "/home/cyber/Solent_Final_Lab/reports/.processed_events"
+
+def load_processed():
+    if os.path.exists(PROCESSED_FILE):
+        with open(PROCESSED_FILE) as f:
+            return set(str(line.strip()) for line in f if line.strip())
+    return set()
+
+def save_processed(eid):
+    with open(PROCESSED_FILE, "a") as f:
+        f.write(f"{eid}\n")
 
 RULES = {
     "SNMP_Link_Down":  {"fault": "link-down",  "severity": "major",    "playbook": "diagnose_link_down.yml"},
@@ -116,13 +127,14 @@ def notify_mattermost(report):
     except Exception as e:
         print(f"  [MATTERMOST] Error: {e}")
 def process(event):
-    eid = event.get("id")
+    eid = str(event.get("id"))
     if eid in processed_events:
         return
     rule = classify(event)
     if not rule:
         return
     processed_events.add(eid)
+    save_processed(eid)
     print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={get_node_name(event)} | severity={rule['severity']}")
     result = run_playbook(rule["playbook"], event.get("ipAddress","unknown"), rule["fault"])
     report = save_report(event, rule, result)
@@ -148,24 +160,27 @@ def process(event):
 #    return report
 
 #def process(event):
-#    eid = event.get("id")
+#    eid = str(event.get("id"))
 #    if eid in processed_events:
 #        return
 #    rule = classify(event)
 #    if not rule:
 #        return
-#    processed_events.add(eid)
+
 #    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={event.get('nodeLabel')} | severity={rule['severity']}")
 #    print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {rule['fault'].upper()} | node={event.get('nodeLabel')} | severity={rule['severity']}")
 #    result = run_playbook(rule["playbook"], event.get("ipAddress","unknown"), rule["fault"])
 #    report = save_report(event, rule, result)
-    notify_mattermost(report)
+#    notify_mattermost(report)
 
 def main():
     print("="*50)
     print("  MARR Engine | COM617 Group 15")
     print(f"  Polling OpenNMS every {POLL_INTERVAL}s")
     print("="*50)
+    global processed_events
+    processed_events = load_processed()
+    print(f"  Loaded {len(processed_events)} processed event IDs from disk")
     while True:
         for e in get_events():
             process(e)
