@@ -29,10 +29,11 @@ def save_processed(eid):
         f.write(f"{eid}\n")
 
 RULES = {
-    "SNMP_Link_Down":  {"fault": "link-down",  "severity": "major",    "playbook": "diagnose_link_down.yml"},
-    "SNMP_Link_Up":    {"fault": "link-up",     "severity": "normal",   "playbook": "diagnose_link_down.yml"},  # reuse if needed
-    "EnterpriseDefault":{"fault": "bgp-change", "severity": "major",    "playbook": "diagnose_bgp_neighbour_loss.yml"},
-    "nodeDown":        {"fault": "node-down",   "severity": "critical", "playbook": "diagnose_high_cpu.yml"}   # temporary mapping
+    "SNMP_Link_Down":  {"fault": "link-down",  "severity": "major",    "playbook": "diagnose-link-down.yml"},
+    "SNMP_Link_Up":    {"fault": "link-up",     "severity": "normal",   "playbook": "diagnose-link-down.yml"},  # reuse if needed
+    "EnterpriseDefault":{"fault": "bgp-change", "severity": "major",    "playbook": "diagnose-bgp.yml"},
+    "nodeDown":        {"fault": "node-down",   "severity": "critical", "playbook": "diagnose-node-down.yml"},  # temporary mapping
+    "nodeLostService": {"fault": "node-down", "severity": "critical", "playbook": "diagnose-node-down.yml"},
 }
 
 #RULES = {

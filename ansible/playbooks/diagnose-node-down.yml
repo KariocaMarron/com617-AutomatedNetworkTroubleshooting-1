@@ -1,0 +1,50 @@
+---
+- name: Node-Down Diagnostic
+  hosts: localhost
+  gather_facts: false
+  vars:
+    report_dir: /home/cyber/Solent_Final_Lab/reports
+    fault: "{{ fault | default('node-down') }}"
+    target: "{{ target | default('unknown') }}"
+    routers:
+      - clab-marr-lab-router1
+      - clab-marr-lab-router2
+      - clab-marr-lab-router3
+
+  tasks:
+    - name: Check reachability to affected node
+      command: docker exec {{ item }} ping -c 3 {{ target }}
+      register: ping_out
+      ignore_errors: true
+      loop: "{{ routers }}"
+
+    - name: Get BGP summary from all routers
+      command: docker exec {{ item }} vtysh -c "show bgp summary"
+      register: bgp_out
+      ignore_errors: true
+      loop: "{{ routers }}"
+
+    - name: Get IP route to affected node
+      command: docker exec {{ item }} vtysh -c "show ip route {{ target }}"
+      register: route_out
+      ignore_errors: true
+      loop: "{{ routers }}"
+
+    - name: Get ARP table from all routers
+      command: docker exec {{ item }} vtysh -c "show ip neigh"
+      register: arp_out
+      ignore_errors: true
+      loop: "{{ routers }}"
+
+    - name: Save diagnostic results to JSON
+      copy:
+        content: "{{ {
+          'playbook': 'diagnose-node-down',
+          'fault': fault,
+          'target': target,
+          'ping_results': ping_out.results | map(attribute='stdout') | list,
+          'bgp_summary': bgp_out.results | map(attribute='stdout') | list,
+          'routes_to_target': route_out.results | map(attribute='stdout') | list,
+          'arp_tables': arp_out.results | map(attribute='stdout') | list
+          } | to_nice_json }}"
+        dest: "{{ report_dir }}/diag-node-down-{{ lookup('pipe', 'date +%s') }}.json"

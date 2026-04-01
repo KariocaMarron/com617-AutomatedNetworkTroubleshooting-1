@@ -75,6 +75,21 @@ case $FAULT in
     echo "[DONE] BGP recovery check complete"
     ;;
 
+  node-down)
+    echo "[1/2] Stopping target router container..."
+    sudo docker stop $CONTAINER
+    echo "[2/2] Sending nodeDown trap to OpenNMS..."
+    docker run --rm --network marr-net alpine sh -c       "apk add --no-cache net-snmp-tools -q &&        snmptrap -v2c -c public ${OPENNMS_IP}:1162 ''        .1.3.6.1.6.3.1.1.5.2        .1.3.6.1.2.1.2.2.1.1.1 i 1"
+    echo "[DONE] Node-down fault injected on $ROUTER"
+    ;;
+
+  node-up)
+    echo "[1/1] Starting target router container..."
+    sudo docker start $CONTAINER
+    sleep 5
+    echo "[DONE] Node $ROUTER restarted"
+    ;;
+
   *)
     echo "Unknown fault type: $FAULT"
     exit 1
