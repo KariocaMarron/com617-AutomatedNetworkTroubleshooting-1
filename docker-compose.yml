@@ -1,64 +1,8 @@
-version: '3.8'
-
 networks:
   marr-reporting:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.22.0.0/24
-
-volumes:
-  mattermost-data:
-  mattermost-logs:
-  mattermost-config:
-  postgres-data:
 
 services:
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: marr-postgres
-    restart: unless-stopped
-    networks:
-      marr-reporting:
-        ipv4_address: 172.21.0.10
-    environment:
-      POSTGRES_USER:     mattermost
-      POSTGRES_PASSWORD: mattermost_pass
-      POSTGRES_DB:       mattermost
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mattermost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mattermost:
-    image: mattermost/mattermost-team-edition:9.5
-    container_name: marr-mattermost
-    restart: unless-stopped
-    networks:
-      marr-reporting:
-        ipv4_address: 172.21.0.11
-    ports:
-      - "8065:8065"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      MM_SQLSETTINGS_DRIVERNAME:          postgres
-      MM_SQLSETTINGS_DATASOURCE:          postgres://mattermost:mattermost_pass@172.21.0.10:5432/mattermost?sslmode=disable
-      MM_SERVICESETTINGS_SITEURL:         http://localhost:8065
-      MM_SERVICESETTINGS_ENABLEINCOMINGWEBHOOKS: "true"
-      MM_LOGSETTINGS_ENABLECONSOLE:       "true"
-      MM_LOGSETTINGS_CONSOLELEVEL:        INFO
-    volumes:
-      - mattermost-data:/mattermost/data
-      - mattermost-logs:/mattermost/logs
-      - mattermost-config:/mattermost/config
-
-
   prometheus:
     image: prom/prometheus:v2.51.0
     container_name: marr-prometheus
@@ -84,7 +28,7 @@ services:
     image: redis:7.2-alpine
     container_name: marr-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - marr-reporting
 
@@ -120,5 +64,4 @@ services:
     networks:
       - marr-reporting
 
-
-# Author: Jose Batalha De Vasconcelos — COM617 Group 15
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15

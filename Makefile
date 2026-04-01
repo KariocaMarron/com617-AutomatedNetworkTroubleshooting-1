@@ -3,10 +3,15 @@
 # Run from repo root: ~/Solent_Final_Lab/
 # Author: Jose Batalha De Vasconcelos - COM617 Group 15
 
-.PHONY: start stop restart status wipe logs test snmp syslog kafka
+.PHONY: start stop restart status wipe logs test snmp syslog kafka docker-up
 
 start:
 	ansible-playbook scripts/lab-start.yml
+
+docker-up:
+	docker compose up -d
+	docker compose -f mattermost/docker-compose.yml up -d
+	cd opennms/horizon && docker compose up -d
 
 stop:
 	ansible-playbook scripts/lab-stop.yml
@@ -27,7 +32,7 @@ status:
 	@sudo containerlab inspect --topo containerlab/lab-topology.yml 2>/dev/null || echo "Containerlab not running"
 	@echo ""
 	@echo "--- Port inventory ---"
-	@ss -tlnp | grep -E ':5000|:8065|:9090|:3000|:8200|:9092|:6379' || true
+	@ss -tlnp | grep -E ':5000|:8065|:8980|:9090|:3000|:8200|:9092|:6380' || true
 	@sudo ss -ulnp | grep -E ':162 |:514 ' || true
 
 logs:

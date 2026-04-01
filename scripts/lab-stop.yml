@@ -59,6 +59,19 @@
       debug:
         msg: "marr-receiver, marr-syslog, marr-snmp systemd services stopped"
 
+    # STEP 1b - Stop OpenNMS Stack
+    - name: "STEP 1b | Stop OpenNMS stack"
+      community.docker.docker_compose_v2:
+        project_src: "/home/cyber/Solent_Final_Lab/opennms/horizon"
+        state: absent
+        remove_volumes: "{{ wipe_data | bool }}"
+      become: no
+      ignore_errors: yes
+
+    - name: "STEP 1b | OpenNMS stopped"
+      debug:
+        msg: "OpenNMS stack stopped"
+
     # STEP 2 - Destroy Containerlab
     - name: "STEP 2/4 | Check if Containerlab is running"
       command: sudo containerlab inspect --topo {{ topology_file }} --format json
