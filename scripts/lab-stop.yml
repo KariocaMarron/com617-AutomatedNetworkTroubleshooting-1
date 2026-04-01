@@ -1,17 +1,18 @@
 ---
 # COM617 MARR Lab — Stop Playbook
-# Usage: ansible-playbook scripts/lab-stop.yml
-# Full wipe: ansible-playbook scripts/lab-stop.yml --extra-vars "wipe_data=true"
-# Run from repo root: ~/com617-AutomatedNetworkTroubleshooting-1/
+# Usage:    ansible-playbook scripts/lab-stop.yml
+# Wipe run: ansible-playbook scripts/lab-stop.yml --extra-vars "wipe_data=true"
+# Run from repo root: ~/Solent_Final_Lab/
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15
 
-- name: COM617 MARR Lab — Stop All Services
+- name: COM617 MARR Lab - Stop All Services
   hosts: localhost
   gather_facts: no
   vars:
     repo_root: "{{ playbook_dir }}/.."
-    topology_file: "{{ playbook_dir }}/../containerlab/topology.yml"
-    receiver_log: "/tmp/marr_receiver.log"
+    topology_file: "{{ playbook_dir }}/../containerlab/lab-topology.yml"
     wipe_data: false
+    snmp_container: clab-com617-marr-lab-snmp-notifier
 
   tasks:
 
@@ -19,58 +20,71 @@
       debug:
         msg:
           - "=========================================="
-          - "  COM617 MARR Lab — Stopping all services"
+          - "  COM617 MARR Lab - Stopping all services"
           - "=========================================="
 
-    # STEP 1 — Stop Python receiver
-    - name: "STEP 1/3 | Check if receiver is running"
-      command: pgrep -f alert_receiver.py
-      register: receiver_pid
+    # STEP 1 - Stop systemd services
+    - name: "STEP 1/4 | Stop marr-receiver systemd service"
+      systemd:
+        name: marr-receiver
+        state: stopped
+      become: yes
+      ignore_errors: yes
+
+    - name: "STEP 1/4 | Stop marr-syslog systemd service"
+      systemd:
+        name: marr-syslog
+        state: stopped
+      become: yes
+      ignore_errors: yes
+
+    - name: "STEP 1/4 | Stop marr-snmp systemd service"
+      systemd:
+        name: marr-snmp
+        state: stopped
+      become: yes
+      ignore_errors: yes
+
+    - name: "STEP 1/4 | Stop SNMP listener inside snmp-notifier container"
+      command: docker exec {{ snmp_container }} pkill -f snmp_listener.py
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 1/3 | Stop Python alert receiver"
+    - name: "STEP 1/4 | Kill any stale nohup receiver processes"
       command: pkill -f alert_receiver.py
-      when: receiver_pid.rc == 0
       ignore_errors: yes
+      changed_when: false
 
-    - name: "STEP 1/3 | Archive receiver log"
-      copy:
-        src: "{{ receiver_log }}"
-        dest: "{{ receiver_log }}.bak"
-        remote_src: yes
-      ignore_errors: yes
-
-    - name: "STEP 1/3 | Receiver status"
+    - name: "STEP 1/4 | Services status"
       debug:
-        msg: "{{ 'Python receiver stopped.' if receiver_pid.rc == 0 else 'Receiver was not running.' }}"
+        msg: "marr-receiver, marr-syslog, marr-snmp systemd services stopped"
 
-    # STEP 2 — Destroy Containerlab
-    - name: "STEP 2/3 | Check if Containerlab is running"
+    # STEP 2 - Destroy Containerlab
+    - name: "STEP 2/4 | Check if Containerlab is running"
       command: sudo containerlab inspect --topo {{ topology_file }} --format json
       register: clab_inspect
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 2/3 | Destroy Containerlab topology"
+    - name: "STEP 2/4 | Destroy Containerlab topology"
       command: sudo containerlab destroy --topo {{ topology_file }}
       args:
         chdir: "{{ repo_root }}"
       when: clab_inspect.rc == 0
       ignore_errors: yes
 
-    - name: "STEP 2/3 | Remove Containerlab generated directory"
+    - name: "STEP 2/4 | Remove Containerlab generated directory"
       file:
         path: "{{ repo_root }}/containerlab/clab-com617-marr-lab"
         state: absent
       ignore_errors: yes
 
-    - name: "STEP 2/3 | Containerlab status"
+    - name: "STEP 2/4 | Containerlab status"
       debug:
         msg: "{{ 'Containerlab destroyed.' if clab_inspect.rc == 0 else 'Containerlab was not running.' }}"
 
-    # STEP 3 — Docker Compose
-    - name: "STEP 3/3 | Stop Mattermost and PostgreSQL"
+    # STEP 3 - Docker Compose
+    - name: "STEP 3/4 | Stop all Docker Compose services"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}"
         state: absent
@@ -78,21 +92,26 @@
       become: no
       ignore_errors: yes
 
-    - name: "STEP 3/3 | Docker Compose status"
+    - name: "STEP 3/4 | Docker Compose status"
       debug:
-        msg: "Mattermost and PostgreSQL stopped{{ ' — volumes REMOVED' if wipe_data | bool else ' — data preserved' }}"
+        msg: "All Docker Compose services stopped{{ ' - volumes REMOVED' if wipe_data | bool else ' - data preserved' }}"
 
-    # VERIFY
-    - name: "VERIFY | Check for remaining containers"
+    # STEP 4 - Verify
+    - name: "STEP 4/4 | Check for remaining MARR containers"
       command: docker ps --filter "name=marr" --filter "name=clab-com617" --format "{{ '{{' }}.Names{{ '}}' }}"
       register: remaining
       changed_when: false
       ignore_errors: yes
 
-    - name: "VERIFY | Warn if containers still running"
+    - name: "STEP 4/4 | Warn if containers still running"
       debug:
-        msg: "WARNING — still running: {{ remaining.stdout_lines }}"
+        msg: "WARNING - still running: {{ remaining.stdout_lines }}"
       when: remaining.stdout_lines | length > 0
+
+    - name: "STEP 4/4 | Confirm clean shutdown"
+      debug:
+        msg: "All containers stopped cleanly."
+      when: remaining.stdout_lines | length == 0
 
     # SUMMARY
     - name: "SUMMARY | Lab stopped"
@@ -101,12 +120,15 @@
           - "=========================================="
           - "  COM617 MARR Lab has been STOPPED"
           - "=========================================="
-          - "  Python receiver : stopped"
-          - "  Containerlab    : destroyed"
-          - "  Mattermost      : stopped"
-          - "  PostgreSQL      : stopped"
-          - "  Volumes         : {{ 'REMOVED' if wipe_data | bool else 'preserved' }}"
+          - "  marr-receiver  : systemd service stopped"
+          - "  marr-syslog    : systemd service stopped"
+          - "  marr-snmp      : systemd service stopped"
+          - "  SNMP listener  : stopped inside container"
+          - "  Containerlab   : destroyed"
+          - "  Docker Compose : stopped"
+          - "  Volumes        : {{ 'REMOVED' if wipe_data | bool else 'preserved' }}"
           - "------------------------------------------"
           - "  To restart: ansible-playbook scripts/lab-start.yml"
-          - "  Log backup: {{ receiver_log }}.bak"
           - "=========================================="
+
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15

@@ -1,16 +1,23 @@
 ---
 # COM617 MARR Lab — Start Playbook
-# Usage: ansible-playbook scripts/lab-start.yml
-# Run from repo root: ~/com617-AutomatedNetworkTroubleshooting-1/
+# Usage:    ansible-playbook scripts/lab-start.yml
+# Wipe run: ansible-playbook scripts/lab-start.yml --extra-vars "wipe_data=true"
+# Run from repo root: ~/Solent_Final_Lab/
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15
 
-- name: COM617 MARR Lab — Start All Services
+- name: COM617 MARR Lab - Start All Services
   hosts: localhost
   gather_facts: yes
   vars:
     repo_root: "{{ playbook_dir }}/.."
-    topology_file: "{{ playbook_dir }}/../containerlab/topology.yml"
-    receiver_log: "/tmp/marr_receiver.log"
+    topology_file: "{{ playbook_dir }}/../containerlab/lab-topology.yml"
     receiver_port: 5000
+    mattermost_port: 8065
+    prometheus_port: 9090
+    grafana_port: 3000
+    vault_port: 8200
+    kafka_port: 9092
+    snmp_container: clab-com617-marr-lab-snmp-notifier
 
   tasks:
 
@@ -21,7 +28,7 @@
       register: compose_check
       failed_when: not compose_check.stat.exists
 
-    - name: "PRE-FLIGHT | Check topology.yml exists"
+    - name: "PRE-FLIGHT | Check topology file exists"
       stat:
         path: "{{ topology_file }}"
       register: topo_check
@@ -34,7 +41,7 @@
 
     - name: "PRE-FLIGHT | Warn if .env is missing"
       debug:
-        msg: "WARNING — .env not found. Copy .env.example to .env and set MATTERMOST_WEBHOOK_URL."
+        msg: "WARNING - .env not found. Copy .env.example to .env and configure all variables before starting."
       when: not env_check.stat.exists
 
     - name: "PRE-FLIGHT | Check Docker is running"
@@ -49,14 +56,23 @@
       failed_when: clab_check.rc != 0
       changed_when: false
 
-    # STEP 1 — Docker Compose
-    - name: "STEP 1/4 | Start Mattermost and PostgreSQL"
+    - name: "PRE-FLIGHT | Scan ports in use"
+      shell: ss -ulnp | grep -E ':162 |:514 |:9162 |:5141 ' || true
+      register: port_scan
+      changed_when: false
+
+    - name: "PRE-FLIGHT | Port scan results"
+      debug:
+        msg: "Ports in use: {{ port_scan.stdout_lines | default(['none detected']) }}"
+
+    # STEP 1 - Docker Compose
+    - name: "STEP 1/6 | Start all Docker Compose services"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}"
         state: present
       become: no
 
-    - name: "STEP 1/4 | Wait for Mattermost to become healthy"
+    - name: "STEP 1/6 | Wait for Mattermost to become healthy"
       community.docker.docker_container_info:
         name: marr-mattermost
       register: mm_info
@@ -65,71 +81,159 @@
       delay: 10
       ignore_errors: yes
 
-    - name: "STEP 1/4 | Mattermost status"
-      debug:
-        msg: "Mattermost is {{ mm_info.container.State.Health.Status | default('unknown') }} — http://localhost:8065"
+    - name: "STEP 1/6 | Wait for Kafka to be ready"
+      command: docker exec marr-kafka kafka-topics --bootstrap-server localhost:9092 --list
+      register: kafka_check
+      retries: 10
+      delay: 5
+      until: kafka_check.rc == 0
+      ignore_errors: yes
+      changed_when: false
 
-    # STEP 2 — Containerlab
-    - name: "STEP 2/4 | Check if Containerlab is already running"
+    - name: "STEP 1/6 | Ensure Kafka topics exist"
+      command: >
+        docker exec marr-kafka kafka-topics --bootstrap-server localhost:9092
+        --create --if-not-exists --topic {{ item }} --partitions 1 --replication-factor 1
+      loop:
+        - raw.alerts
+        - snmp.traps
+        - syslog.events
+      ignore_errors: yes
+
+    - name: "STEP 1/6 | Docker Compose status"
+      debug:
+        msg:
+          - "Mattermost : {{ mm_info.container.State.Health.Status | default('unknown') }} - http://localhost:{{ mattermost_port }}"
+          - "Prometheus : http://localhost:{{ prometheus_port }}"
+          - "Grafana    : http://localhost:{{ grafana_port }}"
+          - "Vault      : http://localhost:{{ vault_port }}"
+          - "Kafka      : localhost:{{ kafka_port }}"
+          - "Redis      : localhost:6379"
+
+    # STEP 2 - Containerlab
+    - name: "STEP 2/6 | Check if Containerlab is already running"
       command: sudo containerlab inspect --topo {{ topology_file }} --format json
       register: clab_inspect
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 2/4 | Deploy Containerlab topology"
+    - name: "STEP 2/6 | Deploy Containerlab topology"
       command: sudo containerlab deploy --topo {{ topology_file }}
       args:
         chdir: "{{ repo_root }}"
       register: clab_deploy
       when: clab_inspect.rc != 0 or 'running' not in clab_inspect.stdout
 
-    - name: "STEP 2/4 | Wait for FRR daemons to initialise"
+    - name: "STEP 2/6 | Wait for FRR daemons to initialise"
       pause:
-        seconds: 10
-        prompt: "Waiting 10 seconds for FRR daemons..."
+        seconds: 15
+        prompt: "Waiting for FRR daemons to start..."
       when: clab_deploy.changed | default(false)
 
-    - name: "STEP 2/4 | Verify OSPF on router1"
+    - name: "STEP 2/6 | Verify OSPF on router1"
       command: sudo docker exec clab-com617-marr-lab-router1 vtysh -c "show ip ospf neighbor"
       register: ospf_check
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 2/4 | Containerlab status"
+    - name: "STEP 2/6 | Containerlab status"
       debug:
-        msg: "Containerlab deployed — OSPF: {{ 'converged' if 'Full' in ospf_check.stdout else 'converging (normal for first 30s)' }}"
+        msg: "Containerlab - OSPF: {{ 'converged' if 'Full' in ospf_check.stdout else 'converging (normal for first 30s)' }}"
 
-    # STEP 3 — Python receiver
-    - name: "STEP 3/4 | Stop any stale receiver"
-      command: pkill -f alert_receiver.py
+    # STEP 3 - SNMP listener inside snmp-notifier container
+    - name: "STEP 3/6 | Check if SNMP listener is running in container"
+      command: docker exec {{ snmp_container }} pgrep -f snmp_listener.py
+      register: snmp_pid
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 3/4 | Start Python alert receiver"
-      shell: >
-        cd {{ repo_root }}/python &&
-        nohup python3 alert_receiver.py > {{ receiver_log }} 2>&1 &
-      args:
-        executable: /bin/bash
+    - name: "STEP 3/6 | Install pysnmp in snmp-notifier if missing"
+      command: docker exec {{ snmp_container }} pip3 install pysnmp requests
+      when: snmp_pid.rc != 0
+      ignore_errors: yes
 
-    - name: "STEP 3/4 | Wait for receiver to start"
-      pause:
-        seconds: 3
+    - name: "STEP 3/6 | Copy snmp_listener.py into container"
+      command: docker cp {{ repo_root }}/python/snmp_listener.py {{ snmp_container }}:/opt/snmp_listener.py
+      when: snmp_pid.rc != 0
 
-    # STEP 4 — Health check
-    - name: "STEP 4/4 | Health check — Python receiver"
+    - name: "STEP 3/6 | Start SNMP listener inside container"
+      command: >
+        docker exec -d {{ snmp_container }}
+        sh -c 'python3 /opt/snmp_listener.py > /tmp/snmp.log 2>&1'
+      when: snmp_pid.rc != 0
+
+    - name: "STEP 3/6 | SNMP listener status"
+      debug:
+        msg: "SNMP listener on UDP 162 inside {{ snmp_container }} - {{ 'already running' if snmp_pid.rc == 0 else 'started' }}"
+
+    # STEP 4 - Systemd services
+    - name: "STEP 4/6 | Start marr-receiver systemd service"
+      systemd:
+        name: marr-receiver
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: "STEP 4/6 | Start marr-syslog systemd service"
+      systemd:
+        name: marr-syslog
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: "STEP 4/6 | Start marr-snmp systemd service"
+      systemd:
+        name: marr-snmp
+        state: started
+        enabled: yes
+      become: yes
+
+    # STEP 5 - Health checks
+    - name: "STEP 5/6 | Health check - Alert receiver"
       uri:
         url: "http://localhost:{{ receiver_port }}/health"
         method: GET
         status_code: 200
-      register: health_check
+      register: receiver_health
       retries: 5
       delay: 2
-      until: health_check.status == 200
+      until: receiver_health.status == 200
 
-    - name: "STEP 4/4 | Receiver health response"
+    - name: "STEP 5/6 | Health check - Prometheus"
+      uri:
+        url: "http://localhost:{{ prometheus_port }}/-/healthy"
+        method: GET
+        status_code: 200
+      register: prometheus_health
+      ignore_errors: yes
+
+    - name: "STEP 5/6 | Health check - Grafana"
+      uri:
+        url: "http://localhost:{{ grafana_port }}/api/health"
+        method: GET
+        status_code: 200
+      register: grafana_health
+      ignore_errors: yes
+
+    - name: "STEP 5/6 | Health check - Vault"
+      uri:
+        url: "http://localhost:{{ vault_port }}/v1/sys/health"
+        method: GET
+        status_code: 200
+      register: vault_health
+      ignore_errors: yes
+
+    # STEP 6 - Port inventory
+    - name: "STEP 6/6 | Final port inventory"
+      shell: >
+        echo "TCP:" && ss -tlnp | grep -E ':5000|:8065|:9090|:3000|:8200|:9092|:6379' || true &&
+        echo "UDP:" && ss -ulnp | grep -E ':162 |:514 ' || true
+      register: port_inventory
+      changed_when: false
+
+    - name: "STEP 6/6 | Port inventory results"
       debug:
-        msg: "{{ health_check.json }}"
+        msg: "{{ port_inventory.stdout_lines }}"
 
     # SUMMARY
     - name: "SUMMARY | Lab started"
@@ -138,22 +242,23 @@
           - "=========================================="
           - "  COM617 MARR Lab is RUNNING"
           - "=========================================="
-          - "  Mattermost  : http://localhost:8065"
-          - "  Receiver    : http://localhost:{{ receiver_port }}/health"
-          - "  Log         : tail -f {{ receiver_log }}"
-          - "  Router1     : 172.20.0.11"
-          - "  Router2     : 172.20.0.12"
-          - "  Router3     : 172.20.0.13"
+          - "  Alert receiver : http://localhost:5000/health"
+          - "  Mattermost     : http://localhost:8065"
+          - "  Prometheus     : http://localhost:9090"
+          - "  Grafana        : http://localhost:3000"
+          - "  Vault          : http://localhost:8200"
+          - "  Kafka          : localhost:9092"
+          - "  Redis          : localhost:6379"
+          - "  SNMP listener  : UDP 162 inside snmp-notifier container"
+          - "  Syslog listener: UDP 514 via systemd marr-syslog"
+          - "  Router1        : 172.20.0.11"
+          - "  Router2        : 172.20.0.12"
+          - "  Router3        : 172.20.0.13"
           - "------------------------------------------"
-          - "  Test alert  :"
+          - "  Test alert:"
           - "  curl -s -X POST http://localhost:5000/alert"
-          - "    -H 'Content-Type: application/json'"
-          - "    -d '{"id":"T01","nodeLabel":"router1","
-          - "         "severity":"CRITICAL","
-          - "         "uei":"uei.opennms.org/generic/traps/SNMP_Link_Down","
-          - "         "description":"Test","ifDescr":"eth1"}'"
+          - "  -H Content-Type:application/json"
+          - "  -d {id:T01,nodeLabel:router1,severity:CRITICAL}"
           - "=========================================="
 
-# Author: Jose Batalha De Vasconcelos — COM617 Group 15
-
-# Author: Jose Batalha De Vasconcelos — COM617 Group 15
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15
