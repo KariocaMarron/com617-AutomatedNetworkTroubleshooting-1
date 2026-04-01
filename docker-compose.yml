@@ -5,7 +5,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.21.0.0/24
+        - subnet: 172.22.0.0/24
 
 volumes:
   mattermost-data:
@@ -57,3 +57,68 @@ services:
       - mattermost-data:/mattermost/data
       - mattermost-logs:/mattermost/logs
       - mattermost-config:/mattermost/config
+
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: marr-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - marr-reporting
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: marr-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=marr2026
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - marr-reporting
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: marr-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - marr-reporting
+
+  vault:
+    image: hashicorp/vault:1.16.1
+    container_name: marr-vault
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: marr-root-token
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+    networks:
+      - marr-reporting
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: marr-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    ports:
+      - "9092:9092"
+    networks:
+      - marr-reporting
+
+
+# Author: Jose Batalha De Vasconcelos — COM617 Group 15
