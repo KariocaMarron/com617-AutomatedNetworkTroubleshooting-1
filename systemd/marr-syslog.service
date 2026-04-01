@@ -1,0 +1,19 @@
+[Unit]
+Description=MARR Syslog Listener - COM617 Group 15
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/cyber/Solent_Final_Lab
+ExecStart=/usr/bin/python3 /home/cyber/Solent_Final_Lab/python/syslog_listener.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15"

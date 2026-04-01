@@ -1,0 +1,19 @@
+[Unit]
+Description=MARR Alert Receiver - COM617 Group 15
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=cyber
+WorkingDirectory=/home/cyber/Solent_Final_Lab
+ExecStart=/usr/bin/python3 /home/cyber/Solent_Final_Lab/python/alert_receiver.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15

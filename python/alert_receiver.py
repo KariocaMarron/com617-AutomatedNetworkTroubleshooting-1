@@ -39,6 +39,22 @@ def receive_alert():
         interface   = payload.get("ifDescr"),
         raw_payload = payload,
     )
+
+    try:
+        from kafka import KafkaProducer
+        import json
+        _producer = KafkaProducer(
+            bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
+            value_serializer=lambda v: json.dumps(v).encode("utf-8")
+        )
+        topic = "snmp.traps" if payload.get("source") == "snmp" else \
+                "syslog.events" if payload.get("source") == "syslog" else "raw.alerts"
+        _producer.send(topic, value=payload)
+        _producer.flush()
+        log.info(f"Published to Kafka topic: {topic}")
+    except Exception as e:
+        log.warning(f"Kafka publish failed (non-fatal): {e}")
+
     fault_type = classify_alert(alert)
     log.info(f"Classified as: {fault_type}")
     playbook = select_runbook(fault_type)
@@ -54,3 +70,4 @@ if __name__ == "__main__":
     log.info(f"Loading .env from: {BASE_DIR / '.env'}")
     log.info(f"Mattermost URL: {os.getenv('MATTERMOST_WEBHOOK_URL', 'NOT SET')}")
     app.run(host="0.0.0.0", port=port, debug=False)
+
