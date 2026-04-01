@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 RECEIVER_URL = 'http://localhost:5000/alert'
 HOST = '0.0.0.0'
-PORT = 5141
+PORT = 514
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((HOST, PORT))

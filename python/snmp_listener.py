@@ -13,7 +13,7 @@ snmpEngine = engine.SnmpEngine()
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpTransport().openServerMode(('0.0.0.0', 9162))
+    udp.UdpTransport().openServerMode(('0.0.0.0', 162))
 )
 config.addV1System(snmpEngine, 'public-area', 'public')
 
@@ -37,7 +37,7 @@ def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
 
 ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 snmpEngine.transportDispatcher.jobStarted(1)
-log.info('SNMP listener running on UDP 9162')
+log.info('SNMP listener running on UDP 162')
 
 try:
     snmpEngine.transportDispatcher.runDispatcher()
