@@ -72,6 +72,19 @@
       debug:
         msg: "OpenNMS stack stopped"
 
+    # STEP 1c - Stop Mattermost
+    - name: "STEP 1c | Stop Mattermost stack"
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_root }}/mattermost"
+        state: absent
+        remove_volumes: "{{ wipe_data | bool }}"
+      become: no
+      ignore_errors: yes
+
+    - name: "STEP 1c | Mattermost stopped"
+      debug:
+        msg: "Mattermost and its database stopped{{ ' - volumes REMOVED' if wipe_data | bool else ' - data preserved' }}"
+
     # STEP 2 - Destroy Containerlab
     - name: "STEP 2/4 | Check if Containerlab is running"
       command: sudo containerlab inspect --topo {{ topology_file }} --format json

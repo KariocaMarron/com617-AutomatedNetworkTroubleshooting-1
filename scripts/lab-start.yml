@@ -72,13 +72,19 @@
         state: present
       become: no
 
+    - name: "STEP 1/7 | Start Mattermost stack"
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_root }}/mattermost"
+        state: present
+      become: no
+
     - name: "STEP 1/7 | Wait for Mattermost to become healthy"
       community.docker.docker_container_info:
         name: marr-mattermost
       register: mm_info
       until: mm_info.container.State.Health.Status == "healthy"
-      retries: 12
-      delay: 10
+      retries: 24
+      delay: 15
       ignore_errors: yes
 
     - name: "STEP 1/7 | Wait for Kafka to be ready"
@@ -131,7 +137,7 @@
         name: marr-horizon
       register: horizon_info
       until: horizon_info.container.State.Health.Status == "healthy"
-      retries: 18
+      retries: 30
       delay: 20
       ignore_errors: yes
 
@@ -157,8 +163,8 @@
 
     - name: "STEP 3/7 | Wait for FRR daemons to initialise"
       pause:
-        seconds: 15
-        prompt: "Waiting for FRR daemons to start..."
+        seconds: 35
+        prompt: "Waiting for FRR daemons and OSPF to initialise..."
       when: clab_deploy.changed | default(false)
 
     - name: "STEP 3/7 | Verify OSPF on router1"
