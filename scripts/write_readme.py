@@ -1,4 +1,6 @@
-# MARR Lab - Automated Network Alert Triage, Diagnostics, and Reporting
+import os
+
+readme = """# MARR Lab - Automated Network Alert Triage, Diagnostics, and Reporting
 
 **COM617 Industrial Consulting Project - Group 15**
 **Industry Sponsor: Cisco Systems (James Whale, SRE)**
@@ -391,3 +393,12 @@ make kafka
 ---
 
 *Author: Jose Batalha De Vasconcelos - COM617 Group 15 - 2 April 2026*
+"""
+
+path = '/home/cyber/Solent_Final_Lab/README.md'
+with open(path, 'w') as f:
+    f.write(readme)
+print("Done - " + str(len(readme)) + " characters written")
+
+
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15
