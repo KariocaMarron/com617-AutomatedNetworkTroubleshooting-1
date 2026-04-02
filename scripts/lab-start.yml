@@ -17,7 +17,7 @@
     grafana_port: 3000
     vault_port: 8200
     kafka_port: 9092
-    snmp_container: clab-com617-marr-lab-snmp-notifier
+    snmp_container: clab-marr-lab-snmp-notifier
 
   tasks:
 
@@ -64,6 +64,17 @@
     - name: "PRE-FLIGHT | Port scan results"
       debug:
         msg: "Ports in use: {{ port_scan.stdout_lines | default(['none detected']) }}"
+
+    # PRE-FLIGHT - Create Docker networks if missing
+    - name: "PRE-FLIGHT | Create marr-net network if missing"
+      command: docker network create --driver bridge --subnet 172.21.0.0/16 marr-net
+      ignore_errors: yes
+      changed_when: false
+
+    - name: "PRE-FLIGHT | Create marr-mgmt network if missing"
+      command: docker network create --driver bridge --subnet 172.20.0.0/24 marr-mgmt
+      ignore_errors: yes
+      changed_when: false
 
     # STEP 1 - Docker Compose
     - name: "STEP 1/7 | Start all Docker Compose services"
@@ -168,7 +179,7 @@
       when: clab_deploy.changed | default(false)
 
     - name: "STEP 3/7 | Verify OSPF on router1"
-      command: sudo docker exec clab-com617-marr-lab-router1 vtysh -c "show ip ospf neighbor"
+      command: sudo docker exec clab-marr-lab-router1 vtysh -c "show ip ospf neighbor"
       register: ospf_check
       ignore_errors: yes
       changed_when: false

@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 Type=simple
 User=root
-ExecStart=/usr/bin/docker exec -i clab-com617-marr-lab-snmp-notifier python3 /opt/snmp_listener.py
+ExecStart=/usr/bin/docker exec -i clab-marr-lab-snmp-notifier python3 /opt/snmp_listener.py
 ExecStartPre=/bin/sleep 5
 Restart=on-failure
 RestartSec=10

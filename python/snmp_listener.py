@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 log = logging.getLogger(__name__)
 
-RECEIVER_URL = 'http://localhost:5000/alert'
+RECEIVER_URL = 'http://172.21.0.1:5000/alert'
 
 snmpEngine = engine.SnmpEngine()
 config.addTransport(

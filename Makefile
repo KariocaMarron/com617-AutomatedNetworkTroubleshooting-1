@@ -43,7 +43,7 @@ logs:
 	@sudo journalctl -u marr-syslog -n 20 --no-pager
 	@echo ""
 	@echo "--- SNMP listener ---"
-	@docker exec clab-com617-marr-lab-snmp-notifier cat /tmp/snmp.log 2>/dev/null | tail -20 || echo "SNMP log not found"
+	@docker exec clab-marr-lab-snmp-notifier cat /tmp/snmp.log 2>/dev/null | tail -20 || echo "SNMP log not found"
 
 test:
 	@echo "Sending test alert..."
@@ -54,13 +54,13 @@ test:
 
 snmp:
 	@echo "Sending SNMP trap from router1..."
-	@docker exec clab-marr-lab-router1 snmptrap -v 2c -c public 172.20.0.14 '' .1.3.6.1.6.3.1.1.5.3
+	@docker exec clab-marr-lab-router1 snmptrap -v 2c -c public 172.21.0.14 '' .1.3.6.1.6.3.1.1.5.3
 	@sleep 3
-	@docker exec clab-com617-marr-lab-snmp-notifier cat /tmp/snmp.log | tail -5
+	@sudo journalctl -u marr-snmp -n 5 --no-pager
 
 syslog:
 	@echo "Sending syslog message from router1..."
-	@echo "<134>OSPF neighbour down on eth1" | docker exec -i clab-marr-lab-router1 nc -u -w1 172.20.0.1 514
+	@echo "<134>OSPF neighbour down on eth1" | docker exec -i clab-marr-lab-router1 nc -u -w1 172.21.0.1 514
 	@sleep 3
 	@sudo journalctl -u marr-syslog -n 5 --no-pager
 
