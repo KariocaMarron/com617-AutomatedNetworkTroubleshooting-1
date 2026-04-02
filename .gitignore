@@ -6,3 +6,5 @@ reports/*.json
 __pycache__/
 *.pyc
 .DS_Store
+containerlab/clab-marr-lab/
+containerlab/clab-*/
