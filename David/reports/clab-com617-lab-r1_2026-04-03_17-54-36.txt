@@ -1,0 +1,12 @@
+Automated Network Troubleshooting Report
+========================================
+Timestamp: 2026-04-03 17:54:36.317408
+Affected Node: clab-com617-lab-r1
+Runbook Used: RB-01 Interface Up/Down
+
+Fault detected on clab-com617-lab-r1
+Selected runbook: RB-01 Interface Up/Down
+Diagnostic actions:
+- Check container state
+- Verify recent connectivity status
+- Recommend checking interface/link or restarting the device
