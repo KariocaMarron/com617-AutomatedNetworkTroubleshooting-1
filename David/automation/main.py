@@ -16,24 +16,38 @@ def determine_runbook(container_name):
         return "RB-01 Interface Up/Down"
     return "Unknown Runbook"
 
+def run_command(command):
+    return os.popen(command).read().strip()
 
 def run_diagnostics(container_name):
     runbook = determine_runbook(container_name)
 
+    print(f"{container_name} is DOWN 🚨")
+    print(f"Triggering runbook: {runbook}")
+    print("Running real diagnostics...\n")
+
+    inspect_output = run_command(f"docker inspect {container_name} 2>/dev/null")
+    logs_output = run_command(f"docker logs --tail 20 {container_name} 2>/dev/null")
+    ps_output = run_command("docker ps -a")
+
     diagnostic_output = [
         f"Fault detected on {container_name}",
         f"Selected runbook: {runbook}",
-        "Diagnostic actions:",
-        "- Check container state",
-        "- Verify recent connectivity status",
-        "- Recommend checking interface/link or restarting the device"
+        "",
+        "=== Docker PS -A Output ===",
+        ps_output,
+        "",
+        f"=== Docker Inspect Output for {container_name} ===",
+        inspect_output if inspect_output else "No inspect data available.",
+        "",
+        f"=== Recent Logs for {container_name} ===",
+        logs_output if logs_output else "No logs available."
     ]
 
-    print(f"{container_name} is DOWN 🚨")
-    print(f"Triggering runbook: {runbook}")
-    print("Running diagnostics...")
-    for line in diagnostic_output[2:]:
-        print(line)
+    print("Collected diagnostics:")
+    print("- Docker status captured")
+    print("- Container inspection captured")
+    print("- Recent logs captured\n")
 
     save_report(container_name, runbook, diagnostic_output)
 

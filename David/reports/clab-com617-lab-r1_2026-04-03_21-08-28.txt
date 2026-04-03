@@ -1,0 +1,238 @@
+Automated Network Troubleshooting Report
+========================================
+Timestamp: 2026-04-03 21:08:28.966231
+Affected Node: clab-com617-lab-r1
+Runbook Used: RB-01 Interface Up/Down
+
+Fault detected on clab-com617-lab-r1
+Selected runbook: RB-01 Interface Up/Down
+
+=== Docker PS -A Output ===
+CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS                        PORTS                                                                      NAMES
+60a42309d3a8   opennms/horizon:latest   "/entrypoint.sh -s"      10 days ago   Exited (255) 2 hours ago      1162/udp, 10514/udp, 8101/tcp, 0.0.0.0:8980->8980/tcp, :::8980->8980/tcp   opennms
+96cb471074c0   postgres:14              "docker-entrypoint.s…"   10 days ago   Exited (0) 2 hours ago                                                                                   opennms-db
+579831c3da0a   alpine:latest            "/bin/sh"                11 days ago   Up 2 hours                                                                                               clab-com617-lab-r2
+ccb27b1f29e5   alpine:latest            "/bin/sh"                11 days ago   Exited (137) 16 seconds ago                                                                              clab-com617-lab-r1
+
+=== Docker Inspect Output for clab-com617-lab-r1 ===
+[
+    {
+        "Id": "ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de",
+        "Created": "2026-03-22T23:40:22.933287894Z",
+        "Path": "/bin/sh",
+        "Args": [],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 137,
+            "Error": "",
+            "StartedAt": "2026-04-03T18:25:56.400489803Z",
+            "FinishedAt": "2026-04-03T20:08:12.701005819Z"
+        },
+        "Image": "sha256:a40c03cbb81c59bfb0e0887ab0b1859727075da7b9cc576a1cec2c771f38c5fb",
+        "ResolvConfPath": "/var/lib/docker/containers/ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de/hostname",
+        "HostsPath": "/var/lib/docker/containers/ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de/hosts",
+        "LogPath": "/var/lib/docker/containers/ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de/ccb27b1f29e5ba6a031e9852a71cb585d8829a68a476753fb0e90c94e1c433de-json.log",
+        "Name": "/clab-com617-lab-r1",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "clab",
+            "PortBindings": null,
+            "RestartPolicy": {
+                "Name": "always",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [
+                "10.255.255.254"
+            ],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": true,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "label=disable"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Sysctls": {
+                "net.ipv6.conf.all.disable_ipv6": "0"
+            },
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [
+                {
+                    "Name": "nofile",
+                    "Hard": 1048576,
+                    "Soft": 1048576
+                }
+            ],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": null,
+            "ReadonlyPaths": null
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/8476fd1f52642ff08e31ac313e0c4c1bf46951a1419851d7fe68e35f218c125b-init/diff:/var/lib/docker/overlay2/abfc9d9fa9715d46dcc699f41c09088aa8fbdd29b86be8d8abadb1728179ca4e/diff",
+                "MergedDir": "/var/lib/docker/overlay2/8476fd1f52642ff08e31ac313e0c4c1bf46951a1419851d7fe68e35f218c125b/merged",
+                "UpperDir": "/var/lib/docker/overlay2/8476fd1f52642ff08e31ac313e0c4c1bf46951a1419851d7fe68e35f218c125b/diff",
+                "WorkDir": "/var/lib/docker/overlay2/8476fd1f52642ff08e31ac313e0c4c1bf46951a1419851d7fe68e35f218c125b/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "r1",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": false,
+            "Env": [
+                "CLAB_LABEL_CLAB_NODE_KIND=linux",
+                "CLAB_LABEL_CLAB_NODE_GROUP=",
+                "CLAB_LABEL_CLAB_OWNER=kayuus",
+                "CLAB_LABEL_CLAB_NODE_LONGNAME=clab-com617-lab-r1",
+                "CLAB_INTFS=1",
+                "no_proxy=localhost,127.0.0.1,::1,*.local,172.20.20.0/24,3fff:172:20:20::/64,r1,r2",
+                "NO_PROXY=localhost,127.0.0.1,::1,*.local,172.20.20.0/24,3fff:172:20:20::/64,r1,r2",
+                "CLAB_LABEL_CLAB_NODE_TYPE=",
+                "CLAB_LABEL_CLAB_TOPO_FILE=/home/kayuus/com617-AutomatedNetworkTroubleshooting-1/David/lab/containerlab-topology.yml",
+                "CLAB_LABEL_CONTAINERLAB=com617-lab",
+                "CLAB_LABEL_CLAB_NODE_LAB_DIR=/home/kayuus/com617-AutomatedNetworkTroubleshooting-1/David/lab/clab-com617-lab/r1",
+                "CLAB_LABEL_CLAB_NODE_NAME=r1",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/sh"
+            ],
+            "Image": "alpine:latest",
+            "Volumes": null,
+            "WorkingDir": "/",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {
+                "clab-mgmt-net-bridge": "br-cbf846cef388",
+                "clab-node-group": "",
+                "clab-node-kind": "linux",
+                "clab-node-lab-dir": "/home/kayuus/com617-AutomatedNetworkTroubleshooting-1/David/lab/clab-com617-lab/r1",
+                "clab-node-longname": "clab-com617-lab-r1",
+                "clab-node-name": "r1",
+                "clab-node-type": "",
+                "clab-owner": "kayuus",
+                "clab-topo-file": "/home/kayuus/com617-AutomatedNetworkTroubleshooting-1/David/lab/containerlab-topology.yml",
+                "containerlab": "com617-lab"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "clab": {
+                    "IPAMConfig": {},
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "",
+                    "DriverOpts": null,
+                    "NetworkID": "cbf846cef388bfa66ede36b2a326c022fa0ca6c6756835d42e8e5d9ed97a99ca",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "clab-com617-lab-r1",
+                        "ccb27b1f29e5",
+                        "r1"
+                    ]
+                }
+            }
+        }
+    }
+]
+
+=== Recent Logs for clab-com617-lab-r1 ===
+/ # [6n/ # [6n/ # [6n/ # [6n/ # [6n
