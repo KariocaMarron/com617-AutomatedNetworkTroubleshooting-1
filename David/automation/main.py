@@ -1,24 +1,25 @@
 import os
 import time
 
-devices = {
-    "r1": "172.20.20.3",
-    "r2": "172.20.20.2"
-}
+containers = ["clab-com617-lab-r1", "clab-com617-lab-r2"]
 
-def ping_device(ip):
-    response = os.system(f"ping -c 1 {ip} > /dev/null 2>&1")
-    return response == 0
+def is_container_running(name):
+    result = os.system(f"docker inspect -f '{{{{.State.Running}}}}' {name} > /dev/null 2>&1")
+    return result == 0
 
 while True:
     print("\nChecking network status...\n")
 
-    for name, ip in devices.items():
-        if ping_device(ip):
-            print(f"{name} ({ip}) is UP")
-        else:
-            print(f"{name} ({ip}) is DOWN 🚨")
-            # Placeholder for automation
-            print(f"Running diagnostics for {name}...")
+    for container in containers:
+        check = os.popen(f"docker inspect -f '{{{{.State.Running}}}}' {container}").read().strip()
 
-    time.sleep(10)X
+        if check == "true":
+            print(f"{container} is UP")
+        else:
+            print(f"{container} is DOWN 🚨")
+            print(f"Running diagnostics for {container}...")
+
+    time.sleep(10)
+
+
+
