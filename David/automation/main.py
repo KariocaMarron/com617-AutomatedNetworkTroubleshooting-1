@@ -75,6 +75,7 @@ def report_recovery(container_name):
     filename = f"reports/{container_name}_recovery_{timestamp}.txt"
 
     print(f"{container_name} has recovered ✅")
+    print("Service restored.")
     print("Generating recovery report...\n")
 
     with open(filename, "w") as report_file:
@@ -83,6 +84,7 @@ def report_recovery(container_name):
         report_file.write(f"Timestamp: {datetime.now()}\n")
         report_file.write(f"Recovered Node: {container_name}\n")
         report_file.write("Status: UP\n")
+        report_file.write("Service restored successfully.\n")
         report_file.write("Recovery detected automatically by the monitoring script.\n")
 
     print(f"Recovery report saved: {filename}\n")
