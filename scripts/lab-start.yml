@@ -77,19 +77,19 @@
       changed_when: false
 
     # STEP 1 - Docker Compose
-    - name: "STEP 1/7 | Start all Docker Compose services"
+    - name: "STEP 1/8 | Start all Docker Compose services"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}"
         state: present
       become: no
 
-    - name: "STEP 1/7 | Start Mattermost stack"
+    - name: "STEP 1/8 | Start Mattermost stack"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/mattermost"
         state: present
       become: no
 
-    - name: "STEP 1/7 | Wait for Mattermost to become healthy"
+    - name: "STEP 1/8 | Wait for Mattermost to become healthy"
       community.docker.docker_container_info:
         name: marr-mattermost
       register: mm_info
@@ -98,7 +98,7 @@
       delay: 15
       ignore_errors: yes
 
-    - name: "STEP 1/7 | Wait for Kafka to be ready"
+    - name: "STEP 1/8 | Wait for Kafka to be ready"
       command: docker exec marr-kafka kafka-topics --bootstrap-server localhost:9092 --list
       register: kafka_check
       retries: 10
@@ -107,7 +107,7 @@
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 1/7 | Ensure Kafka topics exist"
+    - name: "STEP 1/8 | Ensure Kafka topics exist"
       command: >
         docker exec marr-kafka kafka-topics --bootstrap-server localhost:9092
         --create --if-not-exists --topic {{ item }} --partitions 1 --replication-factor 1
@@ -117,7 +117,7 @@
         - syslog.events
       ignore_errors: yes
 
-    - name: "STEP 1/7 | Docker Compose status"
+    - name: "STEP 1/8 | Docker Compose status"
       debug:
         msg:
           - "Mattermost : {{ mm_info.container.State.Health.Status | default('unknown') }} - http://localhost:{{ mattermost_port }}"
@@ -128,13 +128,13 @@
           - "Redis      : localhost:6380"
 
     # STEP 2 - OpenNMS Stack
-    - name: "STEP 2/7 | Start OpenNMS stack (PostgreSQL, ActiveMQ, Horizon)"
+    - name: "STEP 2/8 | Start OpenNMS stack (PostgreSQL, ActiveMQ, Horizon)"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/opennms/horizon"
         state: present
       become: no
 
-    - name: "STEP 2/7 | Wait for OpenNMS PostgreSQL to be healthy"
+    - name: "STEP 2/8 | Wait for OpenNMS PostgreSQL to be healthy"
       community.docker.docker_container_info:
         name: marr-postgres
       register: pg_info
@@ -143,7 +143,7 @@
       delay: 10
       ignore_errors: yes
 
-    - name: "STEP 2/7 | Wait for OpenNMS Horizon to become healthy"
+    - name: "STEP 2/8 | Wait for OpenNMS Horizon to become healthy"
       community.docker.docker_container_info:
         name: marr-horizon
       register: horizon_info
@@ -152,92 +152,127 @@
       delay: 20
       ignore_errors: yes
 
-    - name: "STEP 2/7 | OpenNMS status"
+    - name: "STEP 2/8 | OpenNMS status"
       debug:
         msg: "OpenNMS Horizon: {{ horizon_info.container.State.Health.Status | default('unknown') }} - http://localhost:8980/opennms"
 
 
 
     # STEP 3 - Containerlab
-    - name: "STEP 3/7 | Check if Containerlab is already running"
+    - name: "STEP 3/8 | Check if Containerlab is already running"
       command: sudo containerlab inspect --topo {{ topology_file }} --format json
       register: clab_inspect
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 3/7 | Deploy Containerlab topology"
+    - name: "STEP 3/8 | Deploy Containerlab topology"
       command: sudo containerlab deploy --topo {{ topology_file }}
       args:
         chdir: "{{ repo_root }}"
       register: clab_deploy
       when: clab_inspect.rc != 0 or 'running' not in clab_inspect.stdout
 
-    - name: "STEP 3/7 | Wait for FRR daemons to initialise"
+    - name: "STEP 3/8 | Wait for FRR daemons to initialise"
       pause:
         seconds: 35
         prompt: "Waiting for FRR daemons and OSPF to initialise..."
       when: clab_deploy.changed | default(false)
 
-    - name: "STEP 3/7 | Verify OSPF on router1"
+    - name: "STEP 3/8 | Verify OSPF on router1"
       command: sudo docker exec clab-marr-lab-router1 vtysh -c "show ip ospf neighbor"
       register: ospf_check
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 3/7 | Containerlab status"
+    - name: "STEP 3/8 | Containerlab status"
       debug:
         msg: "Containerlab - OSPF: {{ 'converged' if 'Full' in ospf_check.stdout else 'converging (normal for first 30s)' }}"
 
     # STEP 4 - SNMP listener inside snmp-notifier container
-    - name: "STEP 4/7 | Check if SNMP listener is running in container"
+    - name: "STEP 4/8 | Check if SNMP listener is running in container"
       command: docker exec {{ snmp_container }} pgrep -f snmp_listener.py
       register: snmp_pid
       ignore_errors: yes
       changed_when: false
 
-    - name: "STEP 4/7 | Install pysnmp in snmp-notifier if missing"
+    - name: "STEP 4/8 | Install pysnmp in snmp-notifier if missing"
       command: docker exec {{ snmp_container }} pip3 install pysnmp requests
       when: snmp_pid.rc != 0
       ignore_errors: yes
 
-    - name: "STEP 4/7 | Copy snmp_listener.py into container"
+    - name: "STEP 4/8 | Copy snmp_listener.py into container"
       command: docker cp {{ repo_root }}/python/snmp_listener.py {{ snmp_container }}:/opt/snmp_listener.py
       when: snmp_pid.rc != 0
 
-    - name: "STEP 4/7 | Start SNMP listener inside container"
+    - name: "STEP 4/8 | Start SNMP listener inside container"
       command: >
         docker exec -d {{ snmp_container }}
         sh -c 'python3 /opt/snmp_listener.py > /tmp/snmp.log 2>&1'
       when: snmp_pid.rc != 0
 
-    - name: "STEP 4/7 | SNMP listener status"
+    - name: "STEP 4/8 | SNMP listener status"
       debug:
         msg: "SNMP listener on UDP 162 inside {{ snmp_container }} - {{ 'already running' if snmp_pid.rc == 0 else 'started' }}"
 
     # STEP 5 - Systemd services
-    - name: "STEP 5/7 | Start marr-receiver systemd service"
+    - name: "STEP 5/8 | Start marr-receiver systemd service"
       systemd:
         name: marr-receiver
         state: started
         enabled: yes
       become: yes
 
-    - name: "STEP 5/7 | Start marr-syslog systemd service"
+    - name: "STEP 5/8 | Start marr-syslog systemd service"
       systemd:
         name: marr-syslog
         state: started
         enabled: yes
       become: yes
 
-    - name: "STEP 5/7 | Start marr-snmp systemd service"
+    - name: "STEP 5/8 | Start marr-snmp systemd service"
       systemd:
         name: marr-snmp
         state: started
         enabled: yes
       become: yes
 
-    # STEP 6 - Health checks
-    - name: "STEP 6/7 | Health check - Alert receiver"
+
+    # STEP 6 - Start Minions
+    - name: "STEP 6/8 | Start Hamhung minion"
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_root }}/opennms/minions/hamhung"
+        state: present
+      become: no
+      ignore_errors: yes
+
+    - name: "STEP 6/8 | Start Chongjin minion"
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_root }}/opennms/minions/chongjin"
+        state: present
+      become: no
+      ignore_errors: yes
+
+    - name: "STEP 6/8 | Wait for minions to register with Horizon"
+      uri:
+        url: "http://localhost:8980/opennms/rest/minions"
+        method: GET
+        user: admin
+        password: admin
+        force_basic_auth: yes
+        status_code: 200
+        return_content: yes
+      register: minion_check
+      until: 'totalCount="2" in minion_check.content'
+      retries: 18
+      delay: 20
+      ignore_errors: yes
+
+    - name: "STEP 6/8 | Minion status"
+      debug:
+        msg: '{{ minion_check.content | regex_search("totalCount=\"(\\d+)\"", "\\1") | first | default("0") }}'
+
+    # STEP 7 - Health checks
+    - name: "STEP 7/8 | Health check - Alert receiver"
       uri:
         url: "http://localhost:{{ receiver_port }}/health"
         method: GET
@@ -247,7 +282,7 @@
       delay: 2
       until: receiver_health.status == 200
 
-    - name: "STEP 6/7 | Health check - Prometheus"
+    - name: "STEP 7/8 | Health check - Prometheus"
       uri:
         url: "http://localhost:{{ prometheus_port }}/-/healthy"
         method: GET
@@ -255,7 +290,7 @@
       register: prometheus_health
       ignore_errors: yes
 
-    - name: "STEP 6/7 | Health check - Grafana"
+    - name: "STEP 7/8 | Health check - Grafana"
       uri:
         url: "http://localhost:{{ grafana_port }}/api/health"
         method: GET
@@ -263,7 +298,7 @@
       register: grafana_health
       ignore_errors: yes
 
-    - name: "STEP 6/7 | Health check - Vault"
+    - name: "STEP 7/8 | Health check - Vault"
       uri:
         url: "http://localhost:{{ vault_port }}/v1/sys/health"
         method: GET
@@ -271,15 +306,15 @@
       register: vault_health
       ignore_errors: yes
 
-    # STEP 7 - Port inventory
-    - name: "STEP 7/7 | Final port inventory"
+    # STEP 8 - Port inventory
+    - name: "STEP 8/8 | Final port inventory"
       shell: >
         echo "TCP:" && ss -tlnp | grep -E ':5000|:8065|:8980|:9090|:3000|:8200|:9092|:6380' || true &&
         echo "UDP:" && ss -ulnp | grep -E ':162 |:514 ' || true
       register: port_inventory
       changed_when: false
 
-    - name: "STEP 7/7 | Port inventory results"
+    - name: "STEP 8/8 | Port inventory results"
       debug:
         msg: "{{ port_inventory.stdout_lines }}"
 
