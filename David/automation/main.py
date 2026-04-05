@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime
 
-containers = ["clab-com617-lab-r1", "clab-com617-lab-r2"]
+containers = ["clab-marr-lab-router1", "clab-marr-lab-router2", "clab-marr-lab-router3", "clab-marr-lab-hamhung-router", "clab-marr-lab-chongjin-router"]
 last_status = {}
 
 
@@ -23,7 +23,7 @@ def run_command(command):
 
 def save_report(container_name, runbook, diagnostic_output):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"reports/{container_name}_{timestamp}.txt"
+    filename = f"David/reports/{container_name}_{timestamp}.txt"
 
     with open(filename, "w") as report_file:
         report_file.write("Automated Network Troubleshooting Report\n")
@@ -72,7 +72,7 @@ def run_diagnostics(container_name):
 
 def report_recovery(container_name):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"reports/{container_name}_recovery_{timestamp}.txt"
+    filename = f"David/reports/{container_name}_recovery_{timestamp}.txt"
 
     print(f"{container_name} has recovered ✅")
     print("Service restored.")
