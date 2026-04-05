@@ -6,29 +6,22 @@ services:
     environment:
       MINION_ID: chongjin-minion-01
       MINION_LOCATION: Chongjin
-      OPENNMS_HTTP_URL: http://pyu-horizon:8980/opennms
+      OPENNMS_HTTP_URL: http://marr-horizon:8980/opennms
       OPENNMS_HTTP_USER: admin
       OPENNMS_HTTP_PASS: admin
-      OPENNMS_BROKER_URL: tcp://pyu-activemq:61616
+      OPENNMS_BROKER_URL: tcp://marr-activemq:61616
     command: ["-c"]
     entrypoint: ["/opt/minion-startup.sh"]
     volumes:
-      - minion-data:/opt/minion-data
+      - chongjin-minion-data:/opt/minion-data
       - ./minion-startup.sh:/opt/minion-startup.sh:ro
       - ./opennms.properties.d:/opt/minion/etc/opennms.properties.d:ro
-    ports:
-      - "8202:8201/tcp"
     networks:
-      kafka_pyu-main:
-        ipv4_address: 172.18.0.14
-
+      marr-net:
+        ipv4_address: 172.21.0.21
 volumes:
-  minion-data:
-
+  chongjin-minion-data:
 networks:
-  kafka_pyu-main:
+  marr-net:
     external: true
-
-# Jose Vasconcelos - Jan 2026
-# GitHub - KariocaMarron
-# Static IP configured for stability
+# Author: Jose Batalha De Vasconcelos - COM617 Group 15

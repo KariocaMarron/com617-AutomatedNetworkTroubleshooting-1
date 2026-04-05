@@ -35,6 +35,28 @@ topology:
       exec:
         - snmpd -c /etc/snmp/snmpd.conf
 
+    hamhung-router:
+      kind: linux
+      image: marr-frr-snmp:v1
+      mgmt-ipv4: 172.21.0.111
+      binds:
+        - configs/router1/daemons:/etc/frr/daemons
+        - configs/router1/frr.conf:/etc/frr/frr.conf
+        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
+      exec:
+        - snmpd -c /etc/snmp/snmpd.conf
+
+    chongjin-router:
+      kind: linux
+      image: marr-frr-snmp:v1
+      mgmt-ipv4: 172.21.0.121
+      binds:
+        - configs/router1/daemons:/etc/frr/daemons
+        - configs/router1/frr.conf:/etc/frr/frr.conf
+        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
+      exec:
+        - snmpd -c /etc/snmp/snmpd.conf
+
     snmp-notifier:
       kind: linux
       image: marr-snmp-notifier:v1
@@ -46,6 +68,8 @@ topology:
     - endpoints: ["router1:eth1", "router2:eth1"]
     - endpoints: ["router2:eth2", "router3:eth1"]
     - endpoints: ["router1:eth2", "router3:eth2"]
+    - endpoints: ["router1:eth3", "hamhung-router:eth1"]
+    - endpoints: ["router2:eth3", "chongjin-router:eth1"]
 
 mgmt:
   network: marr-net
