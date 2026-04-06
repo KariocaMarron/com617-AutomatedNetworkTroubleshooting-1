@@ -6,6 +6,7 @@ readme = """# MARR Lab - Automated Network Alert Triage, Diagnostics, and Report
 **Industry Sponsor: Cisco Systems (James Whale, SRE)**
 **Academic Supervisor: Craig Gallen, Southampton Solent University**
 **Submission Deadline: 8 May 2026**
+**Current Release: v4.0**
 
 ---
 
@@ -15,10 +16,11 @@ MARR (Monitor, Analyse, React, Report) is an automated network alert triage,
 diagnostics, and engineer-ready reporting system built for Cisco Systems as
 part of COM617 Industrial Consulting Project at Southampton Solent University.
 
-The system ingests SNMP traps and syslog messages from simulated FRRouting
-network devices, classifies fault events by type and severity, executes
-automated Netmiko diagnostic playbooks, publishes all alerts to Kafka, and
-delivers structured incident reports to Mattermost.
+The system ingests SNMP traps and syslog messages from a simulated three-site
+network, classifies fault events, executes automated Netmiko diagnostics,
+publishes alerts to Kafka, and delivers structured incident reports to
+Mattermost. OpenNMS Horizon (Main PYU) monitors all three sites via dedicated
+remote minions at Hamhung and Chongjin.
 
 ---
 
@@ -30,6 +32,28 @@ delivers structured incident reports to Mattermost.
 | Biloliddin Turaev | Lead Developer |
 | Akinwunmi Rotimi | QA Lead |
 | Akinwunmi Kayode | Systems Integration |
+
+---
+
+## Three-Site Architecture
+
+
+Main PYU
+          OpenNMS Horizon (172.21.0.11)
+          ActiveMQ (172.21.0.9)
+          router1 (172.21.0.101)
+          router2 (172.21.0.102)
+          router3 (172.21.0.103)
+                |
+      +---------+---------+
+      |                   |
+ Hamhung site        Chongjin site
+
+hamhung-minion-01    chongjin-minion-01
+(172.21.0.20)        (172.21.0.21)
+hamhung-router       chongjin-router
+(172.21.0.111)       (172.21.0.121)
+
 
 ---
 
@@ -75,7 +99,8 @@ Mattermost
 | SNMP ingestion | pysnmp inside snmp-notifier | 162/udp |
 | Syslog ingestion | Python socket via systemd | 514/udp |
 | Message broker | Apache Kafka 7.6.0 | 9092/tcp |
-| Network monitoring | OpenNMS Horizon 33.0.2 | 8980/tcp |
+| Network monitoring | OpenNMS Horizon 33.0.2 (Main PYU) | 8980/tcp |
+| Remote monitoring | OpenNMS Minion 33.0.2 x2 | Internal only |
 | Notifications | Mattermost 9.4 | 8065/tcp |
 | Metrics | Prometheus 2.51.0 | 9090/tcp |
 | Dashboards | Grafana 10.4.0 | 3000/tcp |
@@ -95,27 +120,25 @@ Mattermost
 | Network | Subnet | Purpose |
 |---|---|---|
 | solent_final_lab_marr-reporting | 172.22.0.0/24 | Platform services |
-| marr-net | 172.21.0.0/16 | OpenNMS, Mattermost, FRR routers |
-| marr-mgmt | 172.20.0.0/24 | Containerlab management |
+| marr-net | 172.21.0.0/16 | OpenNMS, Mattermost, Minions, FRR routers |
 
-### Running Containers
+### IP Allocation
 
-| Container | Image | Port | Network |
-|---|---|---|---|
-| marr-prometheus | prom/prometheus:v2.51.0 | 9090/tcp | marr-reporting |
-| marr-grafana | grafana/grafana:10.4.0 | 3000/tcp | marr-reporting |
-| marr-redis | redis:7.2-alpine | 6380/tcp | marr-reporting |
-| marr-vault | hashicorp/vault:1.16.1 | 8200/tcp | marr-reporting |
-| marr-kafka | confluentinc/cp-kafka:7.6.0 | 9092/tcp | marr-reporting |
-| marr-mattermost | mattermost-team-edition:9.4 | 8065/tcp | marr-net |
-| marr-mattermost-db | postgres:14 | 5432/tcp | marr-net |
-| marr-horizon | opennms/horizon:33.0.2 | 8980/tcp | marr-net |
-| marr-activemq | activemq-classic:5.18.3 | 61616/tcp | marr-net |
-| marr-postgres | postgres:14 | 5432/tcp | marr-net |
-| clab-marr-lab-router1 | marr-frr-snmp:v1 | 172.21.0.101 | marr-mgmt |
-| clab-marr-lab-router2 | marr-frr-snmp:v1 | 172.21.0.102 | marr-mgmt |
-| clab-marr-lab-router3 | marr-frr-snmp:v1 | 172.21.0.103 | marr-mgmt |
-| clab-com617-marr-lab-snmp-notifier | ubuntu:22.04 | 162/udp | marr-mgmt |
+| Container | IP | Role |
+|---|---|---|
+| marr-activemq | 172.21.0.9 | ActiveMQ broker - minion IPC |
+| marr-postgres | 172.21.0.10 | OpenNMS database |
+| marr-horizon (Main PYU) | 172.21.0.11 | OpenNMS Horizon core |
+| clab-marr-lab-snmp-notifier | 172.21.0.14 | SNMP trap receiver |
+| hamhung-minion | 172.21.0.20 | Hamhung site remote minion |
+| chongjin-minion | 172.21.0.21 | Chongjin site remote minion |
+| marr-mattermost-db | 172.21.0.30 | Mattermost database |
+| marr-mattermost | 172.21.0.31 | Notifications |
+| clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main PYU site |
+| clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main PYU site |
+| clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main PYU site |
+| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Hamhung site |
+| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Chongjin site |
 
 ### Port Register
 
@@ -126,16 +149,14 @@ Mattermost
 | 1162 | UDP | OpenNMS SNMP internal |
 | 3000 | TCP | Grafana |
 | 5000 | TCP | Alert receiver |
-| 6379 | TCP | System Redis (localhost only) |
-| 6380 | TCP | Lab Redis (Docker) |
+| 6380 | TCP | Lab Redis |
 | 8065 | TCP | Mattermost |
 | 8161 | TCP | ActiveMQ web console |
 | 8200 | TCP | HashiCorp Vault |
-| 8980 | TCP | OpenNMS Horizon |
+| 8980 | TCP | OpenNMS Horizon (Main PYU) |
 | 9090 | TCP | Prometheus |
 | 9092 | TCP | Kafka |
-| 10514 | UDP | OpenNMS syslog internal |
-| 61616 | TCP | ActiveMQ broker |
+| 61616 | TCP | ActiveMQ broker (internal only) |
 
 ---
 
@@ -146,13 +167,12 @@ Mattermost
 - Containerlab 0.74 or later
 - Python 3.10 or later
 - Ansible 2.14 or later with community.docker collection
-- Node.js 20 or later (for document generation scripts)
 
 ---
 
 ## Installation
 
-### 1. Clone both repositories
+### 1. Clone the repository
 ```bash
 git clone https://github.com/KariocaMarron/com617-AutomatedNetworkTroubleshooting-1.git
 cd com617-AutomatedNetworkTroubleshooting-1
@@ -162,7 +182,6 @@ cd com617-AutomatedNetworkTroubleshooting-1
 ```bash
 docker network create --driver bridge --subnet 172.22.0.0/24 marr-reporting
 docker network create --driver bridge --subnet 172.21.0.0/16 marr-net
-docker network create --driver bridge --subnet 172.20.0.0/24 marr-mgmt
 ```
 
 ### 3. Configure environment variables
@@ -170,8 +189,6 @@ docker network create --driver bridge --subnet 172.20.0.0/24 marr-mgmt
 cp .env.example .env
 nano .env
 ```
-
-Set MATTERMOST_WEBHOOK_URL and VAULT_DEV_ROOT_TOKEN_ID at minimum.
 
 ### 4. Install Python dependencies
 ```bash
@@ -187,42 +204,39 @@ sudo systemctl daemon-reload
 sudo systemctl enable marr-receiver marr-syslog marr-snmp
 ```
 
+### 6. Build custom snmp-notifier image
+```bash
+docker build -t marr-snmp-notifier:v1 containerlab/snmp-notifier/
+```
+
 ---
 
 ## Starting the Lab
-
-### Recommended - full Ansible startup
 ```bash
 ansible-playbook scripts/lab-start.yml
 ```
 
-The playbook runs 7 steps in sequence with health check waiting at each stage.
+### Startup sequence and timing
 
-### Alternative - direct Docker start
-```bash
-make docker-up
-```
-
-### Expected startup times
-
-| Service | Typical wait |
-|---|---|
-| Prometheus, Grafana, Vault, Kafka | Under 10 seconds |
-| Redis | Under 5 seconds |
-| Mattermost | 30 to 60 seconds |
-| OpenNMS Horizon | 5 to 8 minutes |
-| FRR routers and OSPF | 35 seconds |
+| Step | Service | Max wait |
+|---|---|---|
+| 1 | Platform services and Mattermost | 360 seconds |
+| 2 | OpenNMS Horizon (Main PYU) | 600 seconds |
+| 3 | Containerlab topology (5 routers + snmp-notifier) | 35 seconds |
+| 4 | SNMP listener inside snmp-notifier | Immediate |
+| 5 | Systemd services (receiver, syslog, snmp) | Immediate |
+| 6 | Minions (Hamhung and Chongjin) | 360 seconds to register |
+| 7 | Health checks | 10 seconds each |
+| 8 | Port inventory | Immediate |
 
 ---
 
 ## Stopping the Lab
-
-### Normal shutdown - data preserved
 ```bash
 ansible-playbook scripts/lab-stop.yml
 ```
 
-### Full wipe - removes all Docker volumes
+Full wipe including Docker volumes:
 ```bash
 ansible-playbook scripts/lab-stop.yml --extra-vars "wipe_data=true"
 ```
@@ -246,87 +260,19 @@ make kafka      # List topics and show last message
 
 ---
 
-## Directory Structure
-
-
-Solent_Final_Lab/
-├── containerlab/
-│   ├── lab-topology.yml           # Three-router FRR topology
-│   └── configs/                   # FRRouting configs per router
-├── docs/
-│   ├── COM617_Group15_Lab_Implementation_Log_v3.docx
-│   └── Sprint1_Deliverables_v4.docx
-├── mattermost/
-│   └── docker-compose.yml         # Mattermost and PostgreSQL
-├── monitoring/
-│   └── prometheus.yml             # Prometheus scrape config
-├── opennms/
-│   └── horizon/
-│       ├── docker-compose.yml     # OpenNMS, ActiveMQ, PostgreSQL
-│       └── overlay/               # OpenNMS config overrides
-├── python/
-│   ├── alert_receiver.py          # Flask ingestion endpoint
-│   ├── snmp_listener.py           # SNMP trap receiver
-│   ├── syslog_listener.py         # Syslog receiver
-│   ├── classifier.py              # Fault classification engine
-│   ├── runbook_selector.py        # Runbook mapping
-│   ├── ansible_runner.py          # Diagnostic executor
-│   ├── mattermost_notifier.py     # Incident reporter
-│   ├── models.py                  # Alert data model
-│   ├── cao_schema.py              # Avro schema validation
-│   └── locustfile.py              # Load testing
-├── ansible/
-│   ├── inventory.yml              # Router inventory
-│   └── playbooks/                 # Diagnostic playbooks
-├── scripts/
-│   ├── lab-start.yml              # Ansible startup playbook (7 steps)
-│   ├── lab-stop.yml               # Ansible shutdown playbook
-│   ├── write_compose.py           # Compose file utility
-│   └── write_readme.py            # README generator
-├── systemd/
-│   ├── marr-receiver.service      # Alert receiver service unit
-│   ├── marr-syslog.service        # Syslog listener service unit
-│   └── marr-snmp.service          # SNMP listener service unit
-├── reports/                       # Generated JSON incident reports
-├── logs/                          # Runtime logs
-├── docker-compose.yml             # Platform services
-├── Makefile                       # Lab shortcuts
-├── .env.example                   # Environment variable template
-└── README.md
-
-
----
-
-## Environment Variables
-
-Copy .env.example to .env and configure all variables before starting.
-
-| Variable | Purpose | Default |
-|---|---|---|
-| VAULT_DEV_ROOT_TOKEN_ID | HashiCorp Vault root token | - |
-| POSTGRES_USER | Mattermost database user | mattermost |
-| POSTGRES_PASSWORD | Mattermost database password | - |
-| POSTGRES_DB | Mattermost database name | mattermost |
-| MATTERMOST_WEBHOOK_URL | Incoming webhook for notifications | - |
-| VAULT_ADDR | Vault server address | http://127.0.0.1:8200 |
-| KAFKA_BOOTSTRAP_SERVERS | Kafka broker address | localhost:9092 |
-| RECEIVER_PORT | Alert receiver port | 5000 |
-
----
-
 ## Kafka Topics
 
-| Topic | Source | Routing condition |
-|---|---|---|
-| snmp.traps | SNMP traps | source field equals snmp |
-| syslog.events | Syslog messages | source field equals syslog |
-| raw.alerts | All other alerts | default catch-all |
+| Topic | Routing condition |
+|---|---|
+| snmp.traps | source field equals snmp |
+| syslog.events | source field equals syslog |
+| raw.alerts | all other alerts |
 
 ---
 
 ## Fault Scenarios
 
-| Fault type | Detection method | Runbook |
+| Fault type | Detection | Runbook |
 |---|---|---|
 | Link down | SNMP linkDown trap | diagnose_link_down |
 | BGP change | SNMP bgp trap | diagnose_bgp |
@@ -335,35 +281,11 @@ Copy .env.example to .env and configure all variables before starting.
 
 ---
 
-## Testing
-
-### Send a test alert
-```bash
-make test
-```
-
-### Send a live SNMP trap from router1
-```bash
-make snmp
-```
-
-### Send a live syslog message from router1
-```bash
-make syslog
-```
-
-### Verify Kafka received the alert
-```bash
-make kafka
-```
-
----
-
 ## Access Interfaces
 
-| Interface | URL | Default credentials |
+| Interface | URL | Credentials |
 |---|---|---|
-| OpenNMS | http://localhost:8980/opennms | admin / admin |
+| OpenNMS (Main PYU) | http://localhost:8980/opennms | admin / admin |
 | Mattermost | http://localhost:8065 | Set on first login |
 | Grafana | http://localhost:3000 | admin / marr2026 |
 | Prometheus | http://localhost:9090 | None |
@@ -372,14 +294,25 @@ make kafka
 
 ---
 
+## Version History
+
+| Tag | Description |
+|---|---|
+| v1.0 | Initial lab: OpenNMS, Mattermost, SNMP classification, Containerlab |
+| v2.0 | Platform upgrade: Prometheus, Grafana, Kafka, Vault, Redis, real-world ports |
+| v3.0 | Full audit: custom snmp-notifier image, correct container names, network IPs |
+| v4.0 | Minion integration: three-site architecture, Main PYU, Hamhung, Chongjin |
+
+---
+
 ## Known Limitations
 
 - Redis runs on port 6380 as system Redis occupies 6379
-- Vault runs in dev mode - secrets are lost on container restart
+- Vault runs in dev mode - secrets lost on container restart
 - Kafka single broker with replication factor 1 - no message durability
 - OpenNMS takes 5 to 8 minutes to start on cold boot
-- All fault injection is synthetic - results not validated against live Cisco infrastructure
-- Kubernetes HA not implemented - no horizontal scaling
+- Minions take 3 to 5 minutes to register after Horizon starts
+- All fault injection is synthetic - not validated against live Cisco infrastructure
 
 ---
 
@@ -392,13 +325,14 @@ make kafka
 
 ---
 
-*Author: Jose Batalha De Vasconcelos - COM617 Group 15 - 2 April 2026*
+*Author: Jose Batalha De Vasconcelos - COM617 Group 15 - April 2026*
 """
 
 path = '/home/cyber/Solent_Final_Lab/README.md'
 with open(path, 'w') as f:
     f.write(readme)
 print("Done - " + str(len(readme)) + " characters written")
+
 
 
 # Author: Jose Batalha De Vasconcelos - COM617 Group 15
