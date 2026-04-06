@@ -262,14 +262,14 @@
         status_code: 200
         return_content: yes
       register: minion_check
-      until: 'totalCount="2" in minion_check.content'
+      until: minion_check.content is search('totalCount="2"')
       retries: 18
       delay: 20
       ignore_errors: yes
 
     - name: "STEP 6/8 | Minion status"
       debug:
-        msg: '{{ minion_check.content | regex_search("totalCount=\"(\\d+)\"", "\\1") | first | default("0") }}'
+        msg: "{{ minion_check.content }}"
 
     # STEP 7 - Health checks
     - name: "STEP 7/8 | Health check - Alert receiver"
@@ -335,9 +335,9 @@
           - "  Redis          : localhost:6380"
           - "  SNMP listener  : UDP 162 inside snmp-notifier container"
           - "  Syslog listener: UDP 514 via systemd marr-syslog"
-          - "  Router1        : 172.20.0.11"
-          - "  Router2        : 172.20.0.12"
-          - "  Router3        : 172.20.0.13"
+          - "  Router1        : 172.21.0.101"
+          - "  Router2        : 172.21.0.102"
+          - "  Router3        : 172.21.0.103"
           - "------------------------------------------"
           - "  Test alert:"
           - "  curl -s -X POST http://localhost:5000/alert"
