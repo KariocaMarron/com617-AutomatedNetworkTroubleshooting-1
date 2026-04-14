@@ -1,5 +1,9 @@
 # OpenNMS Setup and Monitoring
 
+https://github.com/gallenc/opennms-tutorials-1/tree/main/session1/minimal-minion-activemq  docker compose porject with opennms - should work
+
+need to connect the netowork to the containerlab network
+
 ## Overview
 OpenNMS was deployed using Docker to monitor the Containerlab network environment and detect network events.
 
