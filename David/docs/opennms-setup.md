@@ -2,7 +2,9 @@
 
 https://github.com/gallenc/opennms-tutorials-1/tree/main/session1/minimal-minion-activemq  docker compose porject with opennms - should work
 
-need to connect the docker compose network to the containerlab network  https://docs.docker.com/compose/how-tos/networking/
+You need to connect the docker compose network to the containerlab network  https://docs.docker.com/compose/how-tos/networking/
+See also containerlab netowrking https://containerlab.dev/manual/network/
+
 ```
 networks:
   N000:
