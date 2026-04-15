@@ -15,7 +15,7 @@ diagnostics, and engineer-ready reporting system built for Cisco Systems as
 part of COM617 Industrial Consulting Project at Southampton Solent University.
 
 The system ingests SNMP traps and syslog messages from a simulated three-site
-network, classifies fault events, executes automated Netmiko diagnostics,
+network, classifies fault events, executes automated Ansible diagnostics,
 publishes alerts to Kafka, and delivers structured incident reports to
 Mattermost. OpenNMS Horizon (Main PYU) monitors all three sites via dedicated
 remote minions at Hamhung and Chongjin.
@@ -35,57 +35,59 @@ remote minions at Hamhung and Chongjin.
 
 ## Three-Site Architecture
 
-
+```
 Main PYU
-          OpenNMS Horizon (172.21.0.11)
-          ActiveMQ (172.21.0.9)
-          router1 (172.21.0.101)
-          router2 (172.21.0.102)
-          router3 (172.21.0.103)
-                |
-      +---------+---------+
-      |                   |
- Hamhung site        Chongjin site
+  OpenNMS Horizon (172.21.0.11)
+  ActiveMQ       (172.21.0.9)
+  router1        (172.21.0.101)  AS 65001
+  router2        (172.21.0.102)  AS 65002
+  router3        (172.21.0.103)  AS 65003
+        |
+  +-----+-----+
+  |           |
+Hamhung     Chongjin
+hamhung-minion-01 (172.21.0.20)    chongjin-minion-01 (172.21.0.21)
+hamhung-router    (172.21.0.111)   AS 65004
+                                   chongjin-router    (172.21.0.121)   AS 65005
+```
 
-hamhung-minion-01    chongjin-minion-01
-(172.21.0.20)        (172.21.0.21)
-hamhung-router       chongjin-router
-(172.21.0.111)       (172.21.0.121)
-
+BGP sessions: full mesh between AS 65001-65002-65003, plus 65001-65004 and 65002-65005.
 
 ---
 
 ## Pipeline Architecture
 
-SNMP trap (UDP 162)          Syslog (UDP 514)
-|                           |
-v                           v
-snmp_listener.py          syslog_listener.py
-inside snmp-notifier       host systemd service
-|                           |
-+-----------+---------------+
-|
-v
-alert_receiver.py
-Flask on port 5000
-|
-+----------+----------+
-|                     |
-v                     v
-Kafka topics          classify_alert()
-raw.alerts                  |
-snmp.traps                  v
-syslog.events         select_runbook()
-|
-v
-run_playbook()
-via Netmiko SSH
-|
-v
-send_incident_report()
-|
-v
-Mattermost
+```
+SNMP trap (UDP 162)        Syslog (UDP 514)
+        |                          |
+        v                          v
+snmp_listener.py         syslog_listener.py
+inside snmp-notifier      host systemd service
+        |                          |
+        +------------+-------------+
+                     |
+                     v
+             alert_receiver.py
+              Flask on port 5000
+                     |
+          +----------+----------+
+          |                     |
+          v                     v
+    Kafka publish          classify_alert()
+    raw.alerts / snmp.traps      |
+    syslog.events                v
+                          select_runbook()
+                                 |
+                                 v
+                          run_playbook()
+                          Ansible via docker exec
+                                 |
+                                 v
+                       send_incident_report()
+                                 |
+                                 v
+                            Mattermost
+```
 
 ---
 
@@ -106,7 +108,6 @@ Mattermost
 | Cache | Redis 7.2 | 6380/tcp |
 | Message bus | ActiveMQ 5.18.3 | 61616/tcp |
 | Network simulation | Containerlab + FRRouting v8.4.1 | - |
-| Diagnostics | Netmiko 4.6.0 | SSH |
 | Automation | Ansible | - |
 
 ---
@@ -117,8 +118,12 @@ Mattermost
 
 | Network | Subnet | Purpose |
 |---|---|---|
-| solent_final_lab_marr-reporting | 172.22.0.0/24 | Platform services |
 | marr-net | 172.21.0.0/16 | OpenNMS, Mattermost, Minions, FRR routers |
+| solent_final_lab_marr-reporting | 172.22.0.0/16 | Platform services (created automatically by Docker Compose) |
+
+Note: marr-net is the shared bridge that connects Docker Compose services to the
+containerlab topology. Both systems join it independently. marr-reporting is created
+automatically when the platform stack starts — do not create it manually.
 
 ### IP Allocation
 
@@ -132,11 +137,11 @@ Mattermost
 | chongjin-minion | 172.21.0.21 | Chongjin site remote minion |
 | marr-mattermost-db | 172.21.0.30 | Mattermost database |
 | marr-mattermost | 172.21.0.31 | Notifications |
-| clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main PYU site |
-| clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main PYU site |
-| clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main PYU site |
-| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Hamhung site |
-| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Chongjin site |
+| clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main PYU (AS 65001) |
+| clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main PYU (AS 65002) |
+| clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main PYU (AS 65003) |
+| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Hamhung (AS 65004) |
+| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Chongjin (AS 65005) |
 
 ### Port Register
 
@@ -158,43 +163,97 @@ Mattermost
 
 ---
 
-## Prerequisites
+## System Requirements
 
 - Ubuntu 22.04 or later
-- Docker and Docker Compose v2
+- Docker 24.0 or later and Docker Compose v2
 - Containerlab 0.74 or later
 - Python 3.10 or later
-- Ansible 2.14 or later with community.docker collection
+- Ansible core 2.14 or later
+- 8 GB RAM minimum (OpenNMS requires 4 GB alone)
+- 20 GB free disk space
 
 ---
 
 ## Installation
 
-### 1. Clone the repository
+### Quick setup (recommended)
+
+Run the setup script once after cloning. It handles all steps automatically
+and adapts paths to the current user and machine.
+
+```bash
+git clone https://github.com/KariocaMarron/com617-AutomatedNetworkTroubleshooting-1.git
+cd com617-AutomatedNetworkTroubleshooting-1
+chmod +x setup.sh
+./setup.sh
+```
+
+The script performs:
+- Prerequisite checks
+- Python dependency installation
+- Ansible collection installation
+- Docker image builds (marr-frr-snmp:v1 and marr-snmp-notifier:v1)
+- Docker network creation (marr-net only)
+- Systemd service installation with correct paths for the current user
+- .env creation from .env.example
+
+After the script completes, configure the Mattermost webhook (see below)
+then start the lab.
+
+---
+
+### Manual installation (step by step)
+
+If you prefer to install manually or the setup script fails at a specific step:
+
+#### 1. Clone the repository
 ```bash
 git clone https://github.com/KariocaMarron/com617-AutomatedNetworkTroubleshooting-1.git
 cd com617-AutomatedNetworkTroubleshooting-1
 ```
 
-### 2. Create required Docker networks
+#### 2. Install Python dependencies
 ```bash
-docker network create --driver bridge --subnet 172.22.0.0/24 marr-reporting
+pip3 install flask requests pysnmp fastavro kafka-python locust hvac \
+    python-dotenv netmiko prometheus-client --break-system-packages
+```
+
+#### 3. Install Ansible collections
+```bash
+ansible-galaxy collection install community.docker
+```
+
+#### 4. Build custom Docker images
+```bash
+# FRR router image with SNMP support
+docker build -f containerlab/Dockerfile.frr-snmp -t marr-frr-snmp:v1 containerlab/
+
+# SNMP notifier image
+docker build -f containerlab/snmp-notifier/Dockerfile -t marr-snmp-notifier:v1 containerlab/snmp-notifier/
+```
+
+#### 5. Create the management Docker network
+```bash
 docker network create --driver bridge --subnet 172.21.0.0/16 marr-net
 ```
 
-### 3. Configure environment variables
+Note: do not create marr-reporting manually. Docker Compose creates it
+automatically when the platform stack starts.
+
+#### 6. Configure environment variables
 ```bash
 cp .env.example .env
 nano .env
 ```
 
-### 4. Install Python dependencies
-```bash
-pip3 install flask requests pysnmp fastavro kafka-python locust hvac python-dotenv netmiko prometheus-client --break-system-packages
-```
+Set MATTERMOST_WEBHOOK_URL after first boot (see Mattermost webhook setup below).
 
-### 5. Install systemd services
+#### 7. Install systemd services
+Replace /home/YOUR_USER and YOUR_USER with your actual username and home directory.
+
 ```bash
+# Edit the service files to use your username and path before copying
 sudo cp systemd/marr-receiver.service /etc/systemd/system/
 sudo cp systemd/marr-syslog.service /etc/systemd/system/
 sudo cp systemd/marr-snmp.service /etc/systemd/system/
@@ -202,14 +261,30 @@ sudo systemctl daemon-reload
 sudo systemctl enable marr-receiver marr-syslog marr-snmp
 ```
 
-### 6. Build custom snmp-notifier image
-```bash
-docker build -t marr-snmp-notifier:v1 containerlab/snmp-notifier/
-```
+Warning: the service files in systemd/ contain hardcoded paths for the
+original developer machine. If you are installing on a different machine,
+use the setup.sh script which rewrites these automatically, or edit the
+User= and WorkingDirectory= fields manually before copying.
+
+---
+
+## Mattermost Webhook Setup
+
+The Mattermost webhook must be configured after the first lab start because
+the webhook URL is specific to each Mattermost instance.
+
+1. Start the lab: `ansible-playbook scripts/lab-start.yml`
+2. Open Mattermost at http://localhost:8065 and complete first-time setup
+3. Go to: Main Menu > Integrations > Incoming Webhooks > Add Incoming Webhook
+4. Select the network-alerts channel and click Save
+5. Copy the webhook URL (format: http://localhost:8065/hooks/xxxxxxxxxx)
+6. Edit .env and set: `MATTERMOST_WEBHOOK_URL=http://localhost:8065/hooks/xxxxxxxxxx`
+7. Restart the receiver: `sudo systemctl restart marr-receiver`
 
 ---
 
 ## Starting the Lab
+
 ```bash
 ansible-playbook scripts/lab-start.yml
 ```
@@ -218,8 +293,9 @@ ansible-playbook scripts/lab-start.yml
 
 | Step | Service | Max wait |
 |---|---|---|
-| 1 | Platform services and Mattermost | 360 seconds |
-| 2 | OpenNMS Horizon (Main PYU) | 600 seconds |
+| Pre-flight | Docker checks, marr-net creation | Immediate |
+| 1 | Platform services (Prometheus, Grafana, Vault, Kafka, Redis) + Mattermost | 360 seconds |
+| 2 | OpenNMS Horizon (Main PYU) - PostgreSQL, ActiveMQ, Horizon | 600 seconds |
 | 3 | Containerlab topology (5 routers + snmp-notifier) | 35 seconds |
 | 4 | SNMP listener inside snmp-notifier | Immediate |
 | 5 | Systemd services (receiver, syslog, snmp) | Immediate |
@@ -230,6 +306,7 @@ ansible-playbook scripts/lab-start.yml
 ---
 
 ## Stopping the Lab
+
 ```bash
 ansible-playbook scripts/lab-stop.yml
 ```
@@ -242,6 +319,7 @@ ansible-playbook scripts/lab-stop.yml --extra-vars "wipe_data=true"
 ---
 
 ## Makefile Quick Reference
+
 ```bash
 make start      # Full Ansible startup
 make stop       # Full Ansible shutdown
@@ -255,6 +333,33 @@ make snmp       # Send live SNMP trap from router1
 make syslog     # Send live syslog from router1
 make kafka      # List topics and show last message
 ```
+
+---
+
+## Testing the Pipeline
+
+Send a test alert end-to-end:
+
+```bash
+curl -s -X POST http://localhost:5000/alert \
+  -H 'Content-Type: application/json' \
+  -d '{"id":"TEST-001","nodeLabel":"router1","severity":"CRITICAL",
+       "uei":"uei.opennms.org/generic/traps/SNMP_Link_Down",
+       "description":"Test alert","ifDescr":"eth1"}' | python3 -m json.tool
+```
+
+Expected response:
+```json
+{
+    "alert_id": "TEST-001",
+    "diag_rc": 0,
+    "fault_type": "link_down",
+    "playbook": "diagnose_link_down",
+    "status": "processed"
+}
+```
+
+A Network Incident Report should appear in the Mattermost network-alerts channel.
 
 ---
 
@@ -300,6 +405,7 @@ make kafka      # List topics and show last message
 | v2.0 | Platform upgrade: Prometheus, Grafana, Kafka, Vault, Redis, real-world ports |
 | v3.0 | Full audit: custom snmp-notifier image, correct container names, network IPs |
 | v4.0 | Minion integration: three-site architecture, Main PYU, Hamhung, Chongjin |
+| v4.1 | Lab hardening: idempotent network creation, snmpd -C fix, portable setup.sh |
 
 ---
 
@@ -310,7 +416,9 @@ make kafka      # List topics and show last message
 - Kafka single broker with replication factor 1 - no message durability
 - OpenNMS takes 5 to 8 minutes to start on cold boot
 - Minions take 3 to 5 minutes to register after Horizon starts
+- OSPF not currently enabled - ospfd=no on all routers
 - All fault injection is synthetic - not validated against live Cisco infrastructure
+- containerlab 0.74.3 kind:linux nodes do not support capability passthrough - snmpd uses -C flag workaround
 
 ---
 
