@@ -8,3 +8,4 @@ __pycache__/
 .DS_Store
 containerlab/clab-marr-lab/
 containerlab/clab-*/
+scripts/*.swp
