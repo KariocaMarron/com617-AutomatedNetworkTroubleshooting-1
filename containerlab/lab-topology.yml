@@ -40,9 +40,9 @@ topology:
       image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.111
       binds:
-        - configs/router1/daemons:/etc/frr/daemons
-        - configs/router1/frr.conf:/etc/frr/frr.conf
-        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
+        - configs/hamhung-router/daemons:/etc/frr/daemons
+        - configs/hamhung-router/frr.conf:/etc/frr/frr.conf
+        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf 
       exec:
         - snmpd -c /etc/snmp/snmpd.conf
 
@@ -51,8 +51,8 @@ topology:
       image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.121
       binds:
-        - configs/router1/daemons:/etc/frr/daemons
-        - configs/router1/frr.conf:/etc/frr/frr.conf
+        - configs/chongjin-router/daemons:/etc/frr/daemons
+        - configs/chongjin-router/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
         - snmpd -c /etc/snmp/snmpd.conf
