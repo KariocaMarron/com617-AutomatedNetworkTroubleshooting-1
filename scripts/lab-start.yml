@@ -66,15 +66,13 @@
         msg: "Ports in use: {{ port_scan.stdout_lines | default(['none detected']) }}"
 
     # PRE-FLIGHT - Create Docker networks if missing
-    - name: "PRE-FLIGHT | Create marr-net network if missing"
-      command: docker network create --driver bridge --subnet 172.21.0.0/16 marr-net
-      ignore_errors: yes
-      changed_when: false
-
-    - name: "PRE-FLIGHT | Create marr-mgmt network if missing"
-      command: docker network create --driver bridge --subnet 172.20.0.0/24 marr-mgmt
-      ignore_errors: yes
-      changed_when: false
+    - name: "PRE-FLIGHT | Ensure marr-net exists (172.21.0.0/16)"
+      community.docker.docker_network:
+        name: marr-net
+        driver: bridge
+        ipam_config:
+          - subnet: "172.21.0.0/16"
+        state: present
 
     # STEP 1 - Docker Compose
     - name: "STEP 1/8 | Start all Docker Compose services"
