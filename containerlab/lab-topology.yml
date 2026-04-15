@@ -1,5 +1,4 @@
 name: marr-lab
-
 topology:
   nodes:
     router1:
@@ -11,7 +10,7 @@ topology:
         - configs/router1/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
-        - snmpd -c /etc/snmp/snmpd.conf
+        - snmpd -C -c /etc/snmp/snmpd.conf
 
     router2:
       kind: linux
@@ -22,7 +21,7 @@ topology:
         - configs/router2/frr.conf:/etc/frr/frr.conf
         - configs/router2/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
-        - snmpd -c /etc/snmp/snmpd.conf
+        - snmpd -C -c /etc/snmp/snmpd.conf
 
     router3:
       kind: linux
@@ -33,7 +32,7 @@ topology:
         - configs/router3/frr.conf:/etc/frr/frr.conf
         - configs/router3/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
-        - snmpd -c /etc/snmp/snmpd.conf
+        - snmpd -C -c /etc/snmp/snmpd.conf
 
     hamhung-router:
       kind: linux
@@ -42,9 +41,9 @@ topology:
       binds:
         - configs/hamhung-router/daemons:/etc/frr/daemons
         - configs/hamhung-router/frr.conf:/etc/frr/frr.conf
-        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf 
+        - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
-        - snmpd -c /etc/snmp/snmpd.conf
+        - snmpd -C -c /etc/snmp/snmpd.conf
 
     chongjin-router:
       kind: linux
@@ -55,7 +54,7 @@ topology:
         - configs/chongjin-router/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
-        - snmpd -c /etc/snmp/snmpd.conf
+        - snmpd -C -c /etc/snmp/snmpd.conf
 
     snmp-notifier:
       kind: linux
@@ -74,3 +73,4 @@ topology:
 mgmt:
   network: marr-net
   ipv4-subnet: 172.21.0.0/16
+# By 5bataj10 April 15 2026

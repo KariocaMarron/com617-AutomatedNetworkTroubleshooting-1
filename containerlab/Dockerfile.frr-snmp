@@ -2,7 +2,8 @@ FROM frrouting/frr:v8.4.0
 
 USER root
 
-RUN apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main net-snmp net-snmp-tools
+RUN apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.16/main net-snmp net-snmp-tools libcap && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/snmpd
 
 COPY configs/snmpd-default.conf /etc/snmp/snmpd.conf
 
