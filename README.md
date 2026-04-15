@@ -11,8 +11,8 @@
 ## Overview
 
 MARR (Monitor, Analyse, React, Report) is an automated network alert triage,
-diagnostics, and engineer-ready reporting system built for Cisco Systems as
-part of COM617 Industrial Consulting Project at Southampton Solent University.
+diagnostics, and an engineer-ready reporting system built for Cisco Systems as
+part of the COM617 Industrial Consulting Project at Southampton Solent University.
 
 The system ingests SNMP traps and syslog messages from a simulated three-site
 network, classifies fault events, executes automated Ansible diagnostics,
@@ -123,7 +123,7 @@ inside snmp-notifier      host systemd service
 
 Note: marr-net is the shared bridge that connects Docker Compose services to the
 containerlab topology. Both systems join it independently. marr-reporting is created
-automatically when the platform stack starts — do not create it manually.
+automatically when the platform stack starts - do not create it manually.
 
 ### IP Allocation
 
@@ -205,7 +205,7 @@ then start the lab.
 
 ### Manual installation (step by step)
 
-If you prefer to install manually or the setup script fails at a specific step:
+If you prefer to install manually, or the setup script fails at a specific step:
 
 #### 1. Clone the repository
 ```bash
@@ -274,7 +274,7 @@ The Mattermost webhook must be configured after the first lab start because
 the webhook URL is specific to each Mattermost instance.
 
 1. Start the lab: `ansible-playbook scripts/lab-start.yml`
-2. Open Mattermost at http://localhost:8065 and complete first-time setup
+2. Open Mattermost at http://localhost:8065 and complete the first-time setup
 3. Go to: Main Menu > Integrations > Incoming Webhooks > Add Incoming Webhook
 4. Select the network-alerts channel and click Save
 5. Copy the webhook URL (format: http://localhost:8065/hooks/xxxxxxxxxx)
