@@ -1,0 +1,37 @@
+---
+- name: Interface Down Diagnostic Playbook
+  hosts: localhost
+  gather_facts: no
+  vars:
+    container_name: "clab-com617-lab-r1"
+
+  tasks:
+    - name: Show which container is being checked
+      debug:
+        msg: "Running diagnostics for {{ container_name }}"
+
+    - name: Get container state
+      command: "docker inspect -f '{% raw %}{{.State.Status}}{% endraw %}' {{ container_name }}"
+      register: container_state
+      ignore_errors: yes
+
+    - name: Display container state
+      debug:
+        var: container_state.stdout
+
+    - name: Get last 20 log lines
+      command: docker logs --tail 20 {{ container_name }}
+      register: container_logs
+      ignore_errors: yes
+
+    - name: Display recent logs
+      debug:
+        var: container_logs.stdout_lines
+
+    - name: List all containers
+      command: docker ps -a
+      register: all_containers
+
+    - name: Display all container statuses
+      debug:
+        var: all_containers.stdout_lines
