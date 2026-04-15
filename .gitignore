@@ -9,3 +9,13 @@ __pycache__/
 containerlab/clab-marr-lab/
 containerlab/clab-*/
 scripts/*.swp
+reports/
+python/__pycache__/
+containerlab/clab-marr-lab/
+logs/
+*.swp
+reports/
+python/__pycache__/
+containerlab/clab-marr-lab/
+logs/
+*.swp
