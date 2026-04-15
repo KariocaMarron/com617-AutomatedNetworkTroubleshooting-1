@@ -5,7 +5,7 @@
   vars:
     output_dir: /tmp/ansible_results
     target: "{{ target_host | default('router1') }}"
-    container: "clab-com617-marr-lab-{{ target }}"
+    container: "clab-marr-lab-{{ target }}"
 
   tasks:
     - name: Create output directory
