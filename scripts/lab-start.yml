@@ -236,14 +236,14 @@
 
 
     # STEP 6 - Start Minions
-    - name: "STEP 6/8 | Start Hamhung minion"
+    - name: "STEP 6/8 | Start Solent-2 minion"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/opennms/minions/hamhung"
         state: present
       become: no
       ignore_errors: yes
 
-    - name: "STEP 6/8 | Start Chongjin minion"
+    - name: "STEP 6/8 | Start Solent-1 minion"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/opennms/minions/chongjin"
         state: present

@@ -17,8 +17,8 @@ part of the COM617 Industrial Consulting Project at Southampton Solent Universit
 The system ingests SNMP traps and syslog messages from a simulated three-site
 network, classifies fault events, executes automated Ansible diagnostics,
 publishes alerts to Kafka, and delivers structured incident reports to
-Mattermost. OpenNMS Horizon (Main PYU) monitors all three sites via dedicated
-remote minions at Hamhung and Chongjin.
+Mattermost. OpenNMS Horizon (Main Solent) monitors all three sites via dedicated
+remote minions at Solent-2 and Solent-1.
 
 ---
 
@@ -36,7 +36,7 @@ remote minions at Hamhung and Chongjin.
 ## Three-Site Architecture
 
 ```
-Main PYU
+Main Solent
   OpenNMS Horizon (172.21.0.11)
   ActiveMQ       (172.21.0.9)
   router1        (172.21.0.101)  AS 65001
@@ -45,8 +45,8 @@ Main PYU
         |
   +-----+-----+
   |           |
-Hamhung     Chongjin
-hamhung-minion-01 (172.21.0.20)    chongjin-minion-01 (172.21.0.21)
+Solent-2     Solent-1
+solent-2-minion-01 (172.21.0.20)    solent-1-minion-01 (172.21.0.21)
 hamhung-router    (172.21.0.111)   AS 65004
                                    chongjin-router    (172.21.0.121)   AS 65005
 ```
@@ -99,7 +99,7 @@ inside snmp-notifier      host systemd service
 | SNMP ingestion | pysnmp inside snmp-notifier | 162/udp |
 | Syslog ingestion | Python socket via systemd | 514/udp |
 | Message broker | Apache Kafka 7.6.0 | 9092/tcp |
-| Network monitoring | OpenNMS Horizon 33.0.2 (Main PYU) | 8980/tcp |
+| Network monitoring | OpenNMS Horizon 33.0.2 (Main Solent) | 8980/tcp |
 | Remote monitoring | OpenNMS Minion 33.0.2 x2 | Internal only |
 | Notifications | Mattermost 9.4 | 8065/tcp |
 | Metrics | Prometheus 2.51.0 | 9090/tcp |
@@ -131,17 +131,17 @@ automatically when the platform stack starts - do not create it manually.
 |---|---|---|
 | marr-activemq | 172.21.0.9 | ActiveMQ broker - minion IPC |
 | marr-postgres | 172.21.0.10 | OpenNMS database |
-| marr-horizon (Main PYU) | 172.21.0.11 | OpenNMS Horizon core |
+| marr-horizon (Main Solent) | 172.21.0.11 | OpenNMS Horizon core |
 | clab-marr-lab-snmp-notifier | 172.21.0.14 | SNMP trap receiver |
-| hamhung-minion | 172.21.0.20 | Hamhung site remote minion |
-| chongjin-minion | 172.21.0.21 | Chongjin site remote minion |
+| hamhung-minion | 172.21.0.20 | Solent-2 site remote minion |
+| chongjin-minion | 172.21.0.21 | Solent-1 site remote minion |
 | marr-mattermost-db | 172.21.0.30 | Mattermost database |
 | marr-mattermost | 172.21.0.31 | Notifications |
-| clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main PYU (AS 65001) |
-| clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main PYU (AS 65002) |
-| clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main PYU (AS 65003) |
-| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Hamhung (AS 65004) |
-| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Chongjin (AS 65005) |
+| clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main Solent (AS 65001) |
+| clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main Solent (AS 65002) |
+| clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main Solent (AS 65003) |
+| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Solent-2 (AS 65004) |
+| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Solent-1 (AS 65005) |
 
 ### Port Register
 
@@ -156,7 +156,7 @@ automatically when the platform stack starts - do not create it manually.
 | 8065 | TCP | Mattermost |
 | 8161 | TCP | ActiveMQ web console |
 | 8200 | TCP | HashiCorp Vault |
-| 8980 | TCP | OpenNMS Horizon (Main PYU) |
+| 8980 | TCP | OpenNMS Horizon (Main Solent) |
 | 9090 | TCP | Prometheus |
 | 9092 | TCP | Kafka |
 | 61616 | TCP | ActiveMQ broker (internal only) |
@@ -295,11 +295,11 @@ ansible-playbook scripts/lab-start.yml
 |---|---|---|
 | Pre-flight | Docker checks, marr-net creation | Immediate |
 | 1 | Platform services (Prometheus, Grafana, Vault, Kafka, Redis) + Mattermost | 360 seconds |
-| 2 | OpenNMS Horizon (Main PYU) - PostgreSQL, ActiveMQ, Horizon | 600 seconds |
+| 2 | OpenNMS Horizon (Main Solent) - PostgreSQL, ActiveMQ, Horizon | 600 seconds |
 | 3 | Containerlab topology (5 routers + snmp-notifier) | 35 seconds |
 | 4 | SNMP listener inside snmp-notifier | Immediate |
 | 5 | Systemd services (receiver, syslog, snmp) | Immediate |
-| 6 | Minions (Hamhung and Chongjin) | 360 seconds to register |
+| 6 | Minions (Solent-2 and Solent-1) | 360 seconds to register |
 | 7 | Health checks | 10 seconds each |
 | 8 | Port inventory | Immediate |
 
@@ -388,7 +388,7 @@ A Network Incident Report should appear in the Mattermost network-alerts channel
 
 | Interface | URL | Credentials |
 |---|---|---|
-| OpenNMS (Main PYU) | http://localhost:8980/opennms | admin / admin |
+| OpenNMS (Main Solent) | http://localhost:8980/opennms | admin / admin |
 | Mattermost | http://localhost:8065 | Set on first login |
 | Grafana | http://localhost:3000 | admin / marr2026 |
 | Prometheus | http://localhost:9090 | None |
@@ -404,8 +404,8 @@ A Network Incident Report should appear in the Mattermost network-alerts channel
 | v1.0 | Initial lab: OpenNMS, Mattermost, SNMP classification, Containerlab |
 | v2.0 | Platform upgrade: Prometheus, Grafana, Kafka, Vault, Redis, real-world ports |
 | v3.0 | Full audit: custom snmp-notifier image, correct container names, network IPs |
-| v4.0 | Minion integration: three-site architecture, Main PYU, Hamhung, Chongjin |
-| v4.1 | Lab hardening: idempotent network creation, snmpd -C fix, portable setup.sh |
+| v4.0 | Minion integration: three-site architecture, Main Solent, Solent-2, Solent-1 |
+| v4.1 | Main Solent rebrand, option-2 minion ID rename, lab hardening (idempotent network, snmpd -C fix, portable setup.sh) |
 
 ---
 

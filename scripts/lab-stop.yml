@@ -60,14 +60,14 @@
         msg: "marr-receiver, marr-syslog, marr-snmp systemd services stopped"
 
     # STEP 1a - Stop Minions
-    - name: "STEP 1a | Stop Hamhung minion"
+    - name: "STEP 1a | Stop Solent-2 minion"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/opennms/minions/hamhung"
         state: absent
       become: no
       ignore_errors: yes
 
-    - name: "STEP 1a | Stop Chongjin minion"
+    - name: "STEP 1a | Stop Solent-1 minion"
       community.docker.docker_compose_v2:
         project_src: "{{ repo_root }}/opennms/minions/chongjin"
         state: absent
@@ -76,7 +76,7 @@
 
     - name: "STEP 1a | Minions stopped"
       debug:
-        msg: "Hamhung and Chongjin minions stopped"
+        msg: "Solent-2 and Solent-1 minions stopped"
 
     # STEP 1b - Stop OpenNMS Stack
     - name: "STEP 1b | Stop OpenNMS stack"
