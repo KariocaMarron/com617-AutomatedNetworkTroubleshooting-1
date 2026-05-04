@@ -5,7 +5,7 @@ services:
     hostname: hamhung-minion
     environment:
       MINION_ID: hamhung-minion-01
-      MINION_LOCATION: Hamhung
+      MINION_LOCATION: Solent-2
       OPENNMS_HTTP_URL: http://marr-horizon:8980/opennms
       OPENNMS_HTTP_USER: admin
       OPENNMS_HTTP_PASS: admin

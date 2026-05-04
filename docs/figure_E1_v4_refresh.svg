@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 920" width="1300" height="920" font-family="Trebuchet MS, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#333"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#cc6600"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#1565c0"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#6a1b9a"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrow-pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#c2185b"/>
+    </marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Title corridor -->
+  <text x="650" y="30" font-size="22" font-weight="bold" text-anchor="middle">MARR System Architecture - v4.0 Lab</text>
+  <text x="650" y="52" font-size="13" text-anchor="middle" fill="#555">Five-stage pipeline with decoupled correlator. Updated 4 May 2026 with renamed minion locations and confirmed correlator deployment.</text>
+
+  <!-- marr-net plane -->
+  <rect x="20" y="70" width="1260" height="540" fill="#f5f5f5" stroke="#bbb" stroke-width="1" rx="6"/>
+  <text x="40" y="93" font-size="13" font-weight="bold" fill="#333">marr-net  -  Operational monitoring plane</text>
+  <text x="40" y="110" font-size="11" font-family="Courier New, monospace" fill="#555">172.21.0.0/16</text>
+
+  <!-- marr-reporting plane -->
+  <rect x="20" y="620" width="1260" height="120" fill="#f0f4f7" stroke="#bbb" stroke-width="1" rx="6"/>
+  <text x="40" y="643" font-size="13" font-weight="bold" fill="#333">marr-reporting  -  Observability plane</text>
+  <text x="40" y="660" font-size="11" font-family="Courier New, monospace" fill="#555">172.22.0.0/24</text>
+
+  <!-- Stage labels -->
+  <text x="135" y="140" font-size="13" font-weight="bold" text-anchor="middle" fill="#444">Stage 1</text>
+  <text x="135" y="156" font-size="11" text-anchor="middle" fill="#666">Ingestion</text>
+  <text x="365" y="140" font-size="13" font-weight="bold" text-anchor="middle" fill="#444">Stage 2</text>
+  <text x="365" y="156" font-size="11" text-anchor="middle" fill="#666">Categorisation</text>
+  <text x="600" y="140" font-size="13" font-weight="bold" text-anchor="middle" fill="#444">Stage 3</text>
+  <text x="600" y="156" font-size="11" text-anchor="middle" fill="#666">Correlation</text>
+  <text x="835" y="140" font-size="13" font-weight="bold" text-anchor="middle" fill="#444">Stage 4</text>
+  <text x="835" y="156" font-size="11" text-anchor="middle" fill="#666">Diagnostics</text>
+  <text x="1085" y="140" font-size="13" font-weight="bold" text-anchor="middle" fill="#444">Stage 5</text>
+  <text x="1085" y="156" font-size="11" text-anchor="middle" fill="#666">Reporting</text>
+
+  <!-- Routers -->
+  <rect x="55" y="180" width="160" height="60" fill="#e8e8e8" stroke="#666" stroke-width="1.2" rx="4"/>
+  <text x="135" y="203" font-size="12" font-weight="bold" text-anchor="middle">FRR Routers</text>
+  <text x="135" y="219" font-size="10" text-anchor="middle" fill="#555">router1, router2, router3</text>
+  <text x="135" y="233" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">.101 .102 .103</text>
+
+  <!-- snmp-notifier -->
+  <rect x="55" y="270" width="160" height="80" fill="#fff3e0" stroke="#cc6600" stroke-width="1.5" rx="4"/>
+  <text x="135" y="290" font-size="12" font-weight="bold" text-anchor="middle">snmp-notifier</text>
+  <text x="135" y="305" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">172.21.0.14</text>
+  <text x="135" y="323" font-size="11" text-anchor="middle">snmp_listener.py</text>
+  <text x="135" y="338" font-size="9" text-anchor="middle" fill="#555">UDP:162  -  parse + normalise</text>
+
+  <!-- marr-receiver -->
+  <rect x="55" y="380" width="160" height="65" fill="#fff3e0" stroke="#cc6600" stroke-width="1.5" rx="4"/>
+  <text x="135" y="400" font-size="12" font-weight="bold" text-anchor="middle">marr-receiver</text>
+  <text x="135" y="415" font-size="10" text-anchor="middle" fill="#444">host-side systemd</text>
+  <text x="135" y="431" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">:5000/alert</text>
+
+  <!-- kafka -->
+  <rect x="285" y="180" width="160" height="190" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5" rx="4"/>
+  <text x="365" y="201" font-size="12" font-weight="bold" text-anchor="middle">marr-kafka</text>
+  <text x="365" y="217" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">localhost:9092</text>
+  <text x="365" y="244" font-size="10" text-anchor="middle" fill="#555">Topics:</text>
+  <text x="365" y="263" font-size="11" font-family="Courier New, monospace" text-anchor="middle" fill="#222">raw.alerts</text>
+  <text x="365" y="280" font-size="11" font-family="Courier New, monospace" text-anchor="middle" fill="#222">snmp.traps</text>
+  <text x="365" y="297" font-size="11" font-family="Courier New, monospace" text-anchor="middle" fill="#222">syslog.events</text>
+  <text x="365" y="328" font-size="9" text-anchor="middle" fill="#555">backbone broker</text>
+  <text x="365" y="343" font-size="9" text-anchor="middle" fill="#555">at-least-once delivery</text>
+
+  <!-- classifier -->
+  <rect x="285" y="385" width="160" height="60" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5" rx="4"/>
+  <text x="365" y="405" font-size="12" font-weight="bold" text-anchor="middle">classifier</text>
+  <text x="365" y="421" font-size="10" text-anchor="middle" fill="#444">YAML rulesets</text>
+  <text x="365" y="436" font-size="9" text-anchor="middle" fill="#555">linkDown / OSPF / BGP</text>
+
+  <!-- correlator (NEW: explicit "v4.0 ACTIVE" badge) -->
+  <rect x="520" y="180" width="160" height="100" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.8" rx="4"/>
+  <rect x="520" y="180" width="160" height="20" fill="#6a1b9a" rx="4"/>
+  <text x="600" y="195" font-size="10" font-weight="bold" text-anchor="middle" fill="#fff">v4.0 ACTIVE</text>
+  <text x="600" y="221" font-size="12" font-weight="bold" text-anchor="middle">marr-correlator</text>
+  <text x="600" y="237" font-size="10" text-anchor="middle" fill="#444">host-side systemd</text>
+  <text x="600" y="252" font-size="9" text-anchor="middle" fill="#555">window/lease/group</text>
+  <text x="600" y="265" font-size="9" text-anchor="middle" fill="#555">source-key + ifIndex</text>
+  <text x="600" y="277" font-size="9" text-anchor="middle" fill="#555">idempotency marker</text>
+
+  <!-- redis -->
+  <rect x="520" y="300" width="160" height="80" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.5" rx="4"/>
+  <text x="600" y="320" font-size="12" font-weight="bold" text-anchor="middle">marr-redis</text>
+  <text x="600" y="335" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">localhost:6380</text>
+  <text x="600" y="355" font-size="9" text-anchor="middle" fill="#555">windows / leases</text>
+  <text x="600" y="368" font-size="9" text-anchor="middle" fill="#555">diag context (4KB / 5min)</text>
+
+  <!-- ansible -->
+  <rect x="755" y="180" width="160" height="90" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5" rx="4"/>
+  <text x="835" y="201" font-size="12" font-weight="bold" text-anchor="middle">Ansible</text>
+  <text x="835" y="216" font-size="10" text-anchor="middle" fill="#444">runbook executor</text>
+  <text x="835" y="236" font-size="9" text-anchor="middle" fill="#555">community.docker</text>
+  <text x="835" y="250" font-size="9" text-anchor="middle" fill="#555">.docker_container_exec</text>
+  <text x="835" y="264" font-size="9" text-anchor="middle" fill="#555">read-only allowlist</text>
+
+  <!-- vtysh -->
+  <rect x="755" y="290" width="160" height="80" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5" rx="4"/>
+  <text x="835" y="310" font-size="12" font-weight="bold" text-anchor="middle">FRR vtysh</text>
+  <text x="835" y="328" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#444">show interface</text>
+  <text x="835" y="343" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#444">show ip bgp summary</text>
+  <text x="835" y="358" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#444">show ip route</text>
+
+  <!-- mattermost -->
+  <rect x="990" y="180" width="200" height="90" fill="#fce4ec" stroke="#c2185b" stroke-width="1.5" rx="4"/>
+  <text x="1090" y="201" font-size="12" font-weight="bold" text-anchor="middle">marr-mattermost</text>
+  <text x="1090" y="217" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">172.21.0.31:8065</text>
+  <text x="1090" y="237" font-size="11" text-anchor="middle">webhook</text>
+  <text x="1090" y="253" font-size="9" text-anchor="middle" fill="#555">network-alerts channel</text>
+  <text x="1090" y="265" font-size="9" text-anchor="middle" fill="#555">single delivery surface</text>
+
+  <!-- notifier -->
+  <rect x="990" y="290" width="200" height="80" fill="#fce4ec" stroke="#c2185b" stroke-width="1.5" rx="4"/>
+  <text x="1090" y="310" font-size="12" font-weight="bold" text-anchor="middle">mattermost_notifier.py</text>
+  <text x="1090" y="328" font-size="9" text-anchor="middle" fill="#555">per-event report</text>
+  <text x="1090" y="343" font-size="9" text-anchor="middle" fill="#555">grouped (correlated) report</text>
+  <text x="1090" y="358" font-size="9" text-anchor="middle" fill="#555">Diag Status fidelity</text>
+
+  <!-- OpenNMS sub-stack -->
+  <text x="40" y="490" font-size="11" font-weight="bold" fill="#333">OpenNMS sub-stack:</text>
+
+  <rect x="55" y="500" width="200" height="65" fill="#fff" stroke="#888" stroke-width="1.2" rx="4"/>
+  <text x="155" y="520" font-size="12" font-weight="bold" text-anchor="middle">OpenNMS Horizon</text>
+  <text x="155" y="535" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">172.21.0.11:8980</text>
+  <text x="155" y="550" font-size="9" text-anchor="middle" fill="#555">v33.0.2  -  ActiveMQ broker</text>
+
+  <!-- minions: now with explicit RENAMED badges -->
+  <rect x="285" y="500" width="200" height="65" fill="#fff" stroke="#2e7d32" stroke-width="1.5" rx="4"/>
+  <text x="385" y="520" font-size="12" font-weight="bold" text-anchor="middle">chongjin-minion-01</text>
+  <text x="385" y="535" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">172.21.0.21</text>
+  <text x="385" y="550" font-size="10" text-anchor="middle" fill="#2e7d32" font-weight="bold">location: Solent-1</text>
+
+  <rect x="515" y="500" width="200" height="65" fill="#fff" stroke="#2e7d32" stroke-width="1.5" rx="4"/>
+  <text x="615" y="520" font-size="12" font-weight="bold" text-anchor="middle">hamhung-minion-01</text>
+  <text x="615" y="535" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">172.21.0.20</text>
+  <text x="615" y="550" font-size="10" text-anchor="middle" fill="#2e7d32" font-weight="bold">location: Solent-2</text>
+
+  <!-- OpenNMS observational note -->
+  <rect x="745" y="500" width="445" height="65" fill="#fff" stroke="#888" stroke-width="1.2" rx="4" stroke-dasharray="4 3"/>
+  <text x="967" y="522" font-size="10" font-weight="bold" text-anchor="middle" fill="#444">OpenNMS is on the operational plane but off the live triage path</text>
+  <text x="967" y="540" font-size="9" text-anchor="middle" fill="#555">Receives the same traps for cross-tool semantic compatibility (UEI vocabulary).</text>
+  <text x="967" y="555" font-size="9" text-anchor="middle" fill="#555">MARR's correlator and reporter consume from Kafka, not OpenNMS events.</text>
+
+  <!-- Observability plane -->
+  <rect x="55" y="675" width="200" height="55" fill="#fff" stroke="#888" stroke-width="1.2" rx="4"/>
+  <text x="155" y="695" font-size="12" font-weight="bold" text-anchor="middle">Prometheus</text>
+  <text x="155" y="710" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">:9090</text>
+  <text x="155" y="722" font-size="9" text-anchor="middle" fill="#555">platform telemetry</text>
+
+  <rect x="285" y="675" width="200" height="55" fill="#fff" stroke="#888" stroke-width="1.2" rx="4"/>
+  <text x="385" y="695" font-size="12" font-weight="bold" text-anchor="middle">Grafana</text>
+  <text x="385" y="710" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">:3000</text>
+  <text x="385" y="722" font-size="9" text-anchor="middle" fill="#555">platform dashboards</text>
+
+  <rect x="515" y="675" width="200" height="55" fill="#fff" stroke="#888" stroke-width="1.2" rx="4"/>
+  <text x="615" y="695" font-size="12" font-weight="bold" text-anchor="middle">HashiCorp Vault</text>
+  <text x="615" y="710" font-size="9" font-family="Courier New, monospace" text-anchor="middle" fill="#666">:8200</text>
+  <text x="615" y="722" font-size="9" text-anchor="middle" fill="#555">credential management</text>
+
+  <rect x="745" y="675" width="445" height="55" fill="#fff" stroke="#888" stroke-width="1.2" rx="4" stroke-dasharray="4 3"/>
+  <text x="967" y="695" font-size="10" font-weight="bold" text-anchor="middle" fill="#444">marr-reporting plane carries platform observability, not alert data</text>
+  <text x="967" y="711" font-size="9" text-anchor="middle" fill="#555">Operational alert data flows through marr-net (above).</text>
+  <text x="967" y="725" font-size="9" text-anchor="middle" fill="#555">marr-reporting holds Prometheus, Grafana, Vault, and Kafka/Redis volumes.</text>
+
+  <!-- Arrows -->
+  <line x1="135" y1="240" x2="135" y2="270" stroke="#cc6600" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+  <text x="145" y="259" font-size="9" fill="#cc6600">SNMP traps</text>
+
+  <line x1="215" y1="295" x2="285" y2="245" stroke="#1565c0" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+  <text x="223" y="266" font-size="9" fill="#1565c0">publish snmp.traps</text>
+
+  <line x1="135" y1="350" x2="135" y2="380" stroke="#cc6600" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+  <text x="145" y="368" font-size="9" fill="#cc6600">HTTP POST</text>
+
+  <line x1="215" y1="412" x2="285" y2="412" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="215" y1="395" x2="285" y2="335" stroke="#1565c0" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arrow-blue)"/>
+
+  <line x1="445" y1="225" x2="520" y2="220" stroke="#6a1b9a" stroke-width="1.8" marker-end="url(#arrow-purple)"/>
+  <text x="450" y="213" font-size="9" fill="#6a1b9a">consume both topics</text>
+
+  <line x1="588" y1="280" x2="588" y2="300" stroke="#6a1b9a" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+  <line x1="612" y1="300" x2="612" y2="280" stroke="#6a1b9a" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+  <text x="514" y="292" font-size="8" fill="#6a1b9a" text-anchor="end">lease</text>
+  <text x="688" y="292" font-size="8" fill="#6a1b9a">window R/W</text>
+
+  <!-- Suppression check arrow -->
+  <path d="M 200 380 L 200 365 L 480 365 L 480 340 L 520 340" stroke="#6a1b9a" stroke-width="1.2" stroke-dasharray="3 3" fill="none" marker-end="url(#arrow-purple)"/>
+  <text x="220" y="357" font-size="9" font-weight="bold" fill="#6a1b9a">suppression check</text>
+
+  <!-- ansible execute -->
+  <path d="M 215 415 L 230 415 L 230 480 L 730 480 L 730 270 L 755 270" stroke="#2e7d32" stroke-width="1.5" fill="none" marker-end="url(#arrow-green)"/>
+  <text x="395" y="476" font-size="9" font-weight="bold" fill="#2e7d32">classify  -  select runbook  -  execute</text>
+
+  <line x1="835" y1="270" x2="835" y2="290" stroke="#2e7d32" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+
+  <!-- per-event report -->
+  <path d="M 215 425 L 240 425 L 240 470 L 1090 470 L 1090 290" stroke="#c2185b" stroke-width="1.5" fill="none" marker-end="url(#arrow-pink)"/>
+  <text x="900" y="465" font-size="9" font-weight="bold" fill="#c2185b">per-event report (if not suppressed)</text>
+
+  <!-- correlated report -->
+  <path d="M 600 180 L 600 130 L 1090 130 L 1090 180" stroke="#c2185b" stroke-width="2" fill="none" marker-end="url(#arrow-pink)"/>
+  <text x="745" y="120" font-size="10" font-weight="bold" fill="#c2185b">grouped (correlated) report</text>
+
+  <!-- ActiveMQ heartbeat -->
+  <line x1="255" y1="535" x2="285" y2="535" stroke="#888" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arrow-gray)"/>
+  <line x1="485" y1="535" x2="515" y2="535" stroke="#888" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arrow-gray)"/>
+  <text x="370" y="585" font-size="8" fill="#888">ActiveMQ heartbeat (registration, status)</text>
+
+  <!-- Legend -->
+  <rect x="20" y="780" width="1260" height="120" fill="#fafafa" stroke="#ccc" stroke-width="0.8" rx="3"/>
+  <text x="40" y="803" font-size="11" font-weight="bold" fill="#333">Legend</text>
+
+  <line x1="115" y1="800" x2="160" y2="800" stroke="#cc6600" stroke-width="1.8" marker-end="url(#arrow-orange)"/>
+  <text x="170" y="803" font-size="10" fill="#444">SNMP / HTTP ingestion</text>
+
+  <line x1="335" y1="800" x2="380" y2="800" stroke="#1565c0" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+  <text x="390" y="803" font-size="10" fill="#444">Kafka publish / consume</text>
+
+  <line x1="555" y1="800" x2="600" y2="800" stroke="#6a1b9a" stroke-width="1.8" marker-end="url(#arrow-purple)"/>
+  <text x="610" y="803" font-size="10" fill="#444">Redis state (correlator)</text>
+
+  <line x1="775" y1="800" x2="820" y2="800" stroke="#2e7d32" stroke-width="1.8" marker-end="url(#arrow-green)"/>
+  <text x="830" y="803" font-size="10" fill="#444">Ansible diagnostic execution</text>
+
+  <line x1="1035" y1="800" x2="1080" y2="800" stroke="#c2185b" stroke-width="1.8" marker-end="url(#arrow-pink)"/>
+  <text x="1090" y="803" font-size="10" fill="#444">Mattermost report delivery</text>
+
+  <line x1="115" y1="828" x2="160" y2="828" stroke="#888" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arrow-gray)"/>
+  <text x="170" y="831" font-size="10" fill="#444">Control / heartbeat / suppression check</text>
+
+  <text x="40" y="861" font-size="10" font-weight="bold" fill="#444">v4.0 changes from earlier diagrams:</text>
+  <text x="40" y="877" font-size="9" fill="#444">- marr-correlator and marr-redis are now first-class components on the live triage path (purple, "v4.0 ACTIVE" badge).</text>
+  <text x="40" y="891" font-size="9" fill="#444">- Minion locations renamed from Chongjin/Hamhung to Solent-1/Solent-2 (green border on minion containers).</text>
+</svg>
