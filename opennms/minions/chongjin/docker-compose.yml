@@ -5,7 +5,7 @@ services:
     hostname: chongjin-minion
     environment:
       MINION_ID: chongjin-minion-01
-      MINION_LOCATION: Chongjin
+      MINION_LOCATION: Solent-1
       OPENNMS_HTTP_URL: http://marr-horizon:8980/opennms
       OPENNMS_HTTP_USER: admin
       OPENNMS_HTTP_PASS: admin
