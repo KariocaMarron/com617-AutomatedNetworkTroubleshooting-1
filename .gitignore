@@ -19,3 +19,7 @@ python/__pycache__/
 containerlab/clab-marr-lab/
 logs/
 *.swp
+
+# Installer packages
+*.deb
+*.rpm
