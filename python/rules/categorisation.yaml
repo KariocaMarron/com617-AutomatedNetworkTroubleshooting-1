@@ -1,0 +1,19 @@
+# MARR categorisation rule table.
+# UEI keyword to fault type mapping; severity fallback when no UEI keyword matches.
+# Versioned through Git; rule updates do not require code redeployment (NFR-006).
+
+uei_fault_map:
+  linkdown:               link_down
+  linkup:                 link_up
+  snmp_link_down:         link_down
+  bgp:                    bgp_loss
+  bgpbackwardtransition:  bgp_loss
+  highthreshold:          high_cpu
+  interfaceindexchange:   link_down
+  ospf:                   link_down
+
+severity_fallback:
+  CRITICAL: link_down
+  MAJOR:    bgp_loss
+  MINOR:    high_cpu
+  default:  unknown
