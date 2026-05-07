@@ -1,11 +1,11 @@
 services:
   minion:
     image: opennms/minion:33.0.2
-    container_name: hamhung-minion
-    hostname: hamhung-minion
+    container_name: solent-1-minion
+    hostname: solent-1-minion
     environment:
-      MINION_ID: solent-2-minion-01
-      MINION_LOCATION: Solent-2
+      MINION_ID: solent-1-minion-01
+      MINION_LOCATION: Solent-1
       OPENNMS_HTTP_URL: http://marr-horizon:8980/opennms
       OPENNMS_HTTP_USER: admin
       OPENNMS_HTTP_PASS: admin
@@ -13,14 +13,14 @@ services:
     command: ["-c"]
     entrypoint: ["/opt/minion-startup.sh"]
     volumes:
-      - hamhung-minion-data:/opt/minion-data
+      - solent-1-minion-data:/opt/minion-data
       - ./minion-startup.sh:/opt/minion-startup.sh:ro
       - ./opennms.properties.d:/opt/minion/etc/opennms.properties.d:ro
     networks:
       marr-net:
-        ipv4_address: 172.21.0.20
+        ipv4_address: 172.21.0.21
 volumes:
-  hamhung-minion-data:
+  solent-1-minion-data:
 networks:
   marr-net:
     external: true

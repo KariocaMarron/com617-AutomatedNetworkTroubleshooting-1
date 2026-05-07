@@ -47,8 +47,8 @@ Main Solent
   |           |
 Solent-2     Solent-1
 solent-2-minion-01 (172.21.0.20)    solent-1-minion-01 (172.21.0.21)
-hamhung-router    (172.21.0.111)   AS 65004
-                                   chongjin-router    (172.21.0.121)   AS 65005
+solent-2-router    (172.21.0.111)   AS 65004
+                                   solent-1-router    (172.21.0.121)   AS 65005
 ```
 
 BGP sessions: full mesh between AS 65001-65002-65003, plus 65001-65004 and 65002-65005.
@@ -140,8 +140,8 @@ automatically when the platform stack starts - do not create it manually.
 | clab-marr-lab-router1 | 172.21.0.101 | FRR router - Main Solent (AS 65001) |
 | clab-marr-lab-router2 | 172.21.0.102 | FRR router - Main Solent (AS 65002) |
 | clab-marr-lab-router3 | 172.21.0.103 | FRR router - Main Solent (AS 65003) |
-| clab-marr-lab-hamhung-router | 172.21.0.111 | FRR router - Solent-2 (AS 65004) |
-| clab-marr-lab-chongjin-router | 172.21.0.121 | FRR router - Solent-1 (AS 65005) |
+| clab-marr-lab-solent-2-router | 172.21.0.111 | FRR router - Solent-2 (AS 65004) |
+| clab-marr-lab-solent-1-router | 172.21.0.121 | FRR router - Solent-1 (AS 65005) |
 
 ### Port Register
 

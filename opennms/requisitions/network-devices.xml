@@ -35,8 +35,8 @@
     </node>
     
     <!-- Hamhung Campus Network Devices -->
-    <node foreign-id="hamhung-router" node-label="Hamhung Edge Router">
-        <interface ip-addr="hamhung-router" status="1" snmp-primary="P">
+    <node foreign-id="solent-2-router" node-label="Solent-2 Edge Router">
+        <interface ip-addr="solent-2-router" status="1" snmp-primary="P">
             <monitored-service service-name="ICMP"/>
             <monitored-service service-name="SNMP"/>
         </interface>
@@ -66,8 +66,8 @@
     </node>
     
     <!-- Chongjin Campus Network Devices -->
-    <node foreign-id="chongjin-router" node-label="Chongjin Edge Router">
-        <interface ip-addr="chongjin-router" status="1" snmp-primary="P">
+    <node foreign-id="solent-1-router" node-label="Solent-1 Edge Router">
+        <interface ip-addr="solent-1-router" status="1" snmp-primary="P">
             <monitored-service service-name="ICMP"/>
             <monitored-service service-name="SNMP"/>
         </interface>

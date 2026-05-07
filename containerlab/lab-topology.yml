@@ -34,24 +34,24 @@ topology:
       exec:
         - snmpd -C -c /etc/snmp/snmpd.conf
 
-    hamhung-router:
+    solent-2-router:
       kind: linux
       image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.111
       binds:
-        - configs/hamhung-router/daemons:/etc/frr/daemons
-        - configs/hamhung-router/frr.conf:/etc/frr/frr.conf
+        - configs/solent-2-router/daemons:/etc/frr/daemons
+        - configs/solent-2-router/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
         - snmpd -C -c /etc/snmp/snmpd.conf
 
-    chongjin-router:
+    solent-1-router:
       kind: linux
       image: marr-frr-snmp:v1
       mgmt-ipv4: 172.21.0.121
       binds:
-        - configs/chongjin-router/daemons:/etc/frr/daemons
-        - configs/chongjin-router/frr.conf:/etc/frr/frr.conf
+        - configs/solent-1-router/daemons:/etc/frr/daemons
+        - configs/solent-1-router/frr.conf:/etc/frr/frr.conf
         - configs/router1/snmpd.conf:/etc/snmp/snmpd.conf
       exec:
         - snmpd -C -c /etc/snmp/snmpd.conf
@@ -67,8 +67,8 @@ topology:
     - endpoints: ["router1:eth1", "router2:eth1"]
     - endpoints: ["router2:eth2", "router3:eth1"]
     - endpoints: ["router1:eth2", "router3:eth2"]
-    - endpoints: ["router1:eth3", "hamhung-router:eth1"]
-    - endpoints: ["router2:eth3", "chongjin-router:eth1"]
+    - endpoints: ["router1:eth3", "solent-2-router:eth1"]
+    - endpoints: ["router2:eth3", "solent-1-router:eth1"]
 
 mgmt:
   network: marr-net
