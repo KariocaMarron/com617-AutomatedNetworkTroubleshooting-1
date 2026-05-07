@@ -60,6 +60,8 @@ topology:
       kind: linux
       image: marr-snmp-notifier:v1
       mgmt-ipv4: 172.21.0.14
+      binds:
+        - ../python/snmp_listener.py:/opt/snmp_listener.py:ro
       ports:
         - 162:162/udp
 
