@@ -4,7 +4,7 @@
   gather_facts: no
   vars:
     output_dir: /tmp/ansible_results
-    target: "{{ target_host | default('router1') }}"
+    target: "{{ (target_host | default('router1')) | regex_replace('^clab-marr-lab-', '') }}"
     container: "clab-marr-lab-{{ target }}"
 
   tasks:

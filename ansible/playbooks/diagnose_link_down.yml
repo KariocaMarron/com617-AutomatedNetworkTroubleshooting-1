@@ -5,7 +5,7 @@
   vars:
     output_dir: /tmp/ansible_results
     affected_interface: "{{ alert_interface | default('eth1') }}"
-    target: "{{ target_host | default('router1') }}"
+    target: "{{ (target_host | default('router1')) | regex_replace('^clab-marr-lab-', '') }}"
     container: "clab-marr-lab-{{ target }}"
 
   tasks:
